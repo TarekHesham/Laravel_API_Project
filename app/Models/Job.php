@@ -50,7 +50,7 @@ class Job extends Model
     {
         return [
             'slug' => [
-                'source' => 'title'
+                'source' => 'job_title'
             ]
         ];
     }

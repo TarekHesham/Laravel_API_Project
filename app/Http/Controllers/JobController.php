@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\JobResource;
 use App\Models\Job;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -83,7 +84,7 @@ class JobController extends Controller
         }
 
         // Return the job posting as JSON
-        return response()->json($job);
+        return response()->json(new JobResource($job));
     }
 
     /**
