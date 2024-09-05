@@ -56,6 +56,11 @@ class Job extends Model
         return $this->hasMany(JobSkill::class, 'job_listing_id');
     }
 
+    function categories(): HasMany
+    {
+        return $this->hasMany(JobCategory::class, 'job_listing_id');
+    }
+
 
     protected static function boot()
     {
