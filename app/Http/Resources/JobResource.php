@@ -33,6 +33,7 @@ class JobResource extends JsonResource
             'employer' => new UserResource($this->employer),
             'comments' => CommentResource::collection($this->comments),
             'benefits' => JobBenefitResource::collection($this->benefits),
+            'skills' => JobSkillResource::collection($this->skills)
         ];
     }
 }
