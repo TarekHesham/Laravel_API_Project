@@ -35,7 +35,10 @@ class Job extends Model
     {
         return $this->belongsTo(User::class, 'employer_id');
     }
-
+    function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class, 'location_id');
+    }
     function comments(): HasMany
     {
         return $this->hasMany(Comment::class, 'job_id');

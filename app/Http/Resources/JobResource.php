@@ -19,8 +19,6 @@ class JobResource extends JsonResource
             'id' => $this->id,
             'job_title' => $this->job_title,
             'description' => $this->description,
-            'employer' => new UserResource($this->employer),
-            'comments' => CommentResource::collection($this->comments),
             'experience_level' => $this->experience_level,
             'salary_from' => $this->salary_from,
             'salary_to' => $this->salary_to,
@@ -30,6 +28,9 @@ class JobResource extends JsonResource
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'location' => $this->location->name,
+            'employer' => new UserResource($this->employer),
+            'comments' => CommentResource::collection($this->comments),
         ];
     }
 }
