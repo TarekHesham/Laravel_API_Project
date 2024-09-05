@@ -21,7 +21,7 @@ class JobPolicy
      */
     public function view(User $user, Job $job): bool
     {
-        return true;
+        return $job->status === 'open';
     }
 
     /**
