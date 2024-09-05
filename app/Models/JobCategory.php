@@ -10,7 +10,17 @@ class JobCategory extends Model
 {
     use HasFactory;
     protected $table = "job_category";
+    public $timestamps = false;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'job_listing_id',
+        'category_id',
+    ];
     public function job(): BelongsTo
     {
         return $this->belongsTo(Job::class, 'job_id');

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\JobResource;
 use App\Models\Job;
+use App\Models\JobBenefit;
+use App\Models\JobCategory;
+use App\Models\JobSkill;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -42,7 +45,12 @@ class JobController extends Controller
             'salary_from' => 'required|integer',
             'salary_to' => 'required|integer|gt:salary_from',
             'work_type' => 'required|string|in:remote,onsite,hybrid',
-            'location_id' => 'required|integer'
+            'location_id' => 'required|integer',
+
+            // TESTING Here
+            'skills' => 'array|exists:skills,id',
+            'benefits' => 'array|exists:benefits,id',
+            'categories' => 'array|exists:categories,id',
         ]);
 
         // Return a 422 error if validation fails
@@ -58,6 +66,33 @@ class JobController extends Controller
 
         // Store the new job posting
         $job = Job::create($request_data);
+
+        if (isset($request_data['skills'])) {
+            foreach ($request_data['skills'] as $skill) {
+                JobSkill::create([
+                    'job_listing_id' => $job->id,
+                    'skill_id' => $skill
+                ]);
+            }
+        }
+
+        if (isset($request_data['benefits'])) {
+            foreach ($request_data['benefits'] as $benefit) {
+                JobBenefit::create([
+                    'job_listing_id' => $job->id,
+                    'benefit_id' => $benefit
+                ]);
+            }
+        }
+
+        if (isset($request_data['categories'])) {
+            foreach ($request_data['categories'] as $category) {
+                JobCategory::create([
+                    'job_listing_id' => $job->id,
+                    'category_id' => $category
+                ]);
+            }
+        }
 
         // Return a 201 response with the new job posting
         return response()->json([
