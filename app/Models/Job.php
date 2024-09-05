@@ -35,14 +35,22 @@ class Job extends Model
     {
         return $this->belongsTo(User::class, 'employer_id');
     }
+
     function location(): BelongsTo
     {
         return $this->belongsTo(Location::class, 'location_id');
     }
+
     function comments(): HasMany
     {
         return $this->hasMany(Comment::class, 'job_id');
     }
+
+    function benefits(): HasMany
+    {
+        return $this->hasMany(JobBenefit::class, 'job_listing_id');
+    }
+
 
     protected static function boot()
     {

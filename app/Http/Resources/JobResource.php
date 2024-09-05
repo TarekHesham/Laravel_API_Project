@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\JobBenefit;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -31,6 +32,7 @@ class JobResource extends JsonResource
             'location' => $this->location->name,
             'employer' => new UserResource($this->employer),
             'comments' => CommentResource::collection($this->comments),
+            'benefits' => JobBenefitResource::collection($this->benefits),
         ];
     }
 }
