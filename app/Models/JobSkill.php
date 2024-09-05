@@ -10,6 +10,17 @@ class JobSkill extends Model
 {
     use HasFactory;
     protected $table = "job_skills";
+    public $timestamps = false;
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'job_listing_id',
+        'skill_id'
+    ];
+
 
     public function job(): BelongsTo
     {
