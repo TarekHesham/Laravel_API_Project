@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\Comment;
 use App\Models\User;
 use App\Models\Users\Comment;
 use App\Policies\JobPolicy;
