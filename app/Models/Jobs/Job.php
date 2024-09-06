@@ -2,7 +2,10 @@
 
 namespace App\Models\Jobs;
 
+use App\Models\Dependency\Benefits;
+use App\Models\Dependency\Categories;
 use App\Models\Dependency\Location;
+use App\Models\Dependency\Skills;
 use App\Models\Users\Comment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,21 +52,20 @@ class Job extends Model
         return $this->hasMany(Comment::class, 'job_id');
     }
 
-    function benefits(): HasMany
+    public function skills()
     {
-        return $this->hasMany(JobBenefit::class, 'job_listing_id');
+        return $this->belongsToMany(Skills::class, 'job_skills', 'job_listing_id', 'skill_id');
     }
 
-    function skills(): HasMany
+    public function benefits()
     {
-        return $this->hasMany(JobSkill::class, 'job_listing_id');
+        return $this->belongsToMany(Benefits::class, 'job_benefits', 'job_listing_id', 'benefit_id');
     }
 
-    function categories(): HasMany
+    public function categories()
     {
-        return $this->hasMany(JobCategory::class, 'job_listing_id');
+        return $this->belongsToMany(Categories::class, 'job_category', 'job_listing_id', 'category_id');
     }
-
 
     protected static function boot()
     {

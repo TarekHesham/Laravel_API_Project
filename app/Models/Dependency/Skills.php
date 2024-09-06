@@ -2,6 +2,7 @@
 
 namespace App\Models\Dependency;
 
+use App\Models\Jobs\Job;
 use App\Models\Jobs\JobBenefit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,8 +13,9 @@ class Skills extends Model
     use HasFactory;
     protected $table = "skills";
 
-    function benefit(): BelongsTo
+    // Define inverse relationships if needed
+    public function jobListings()
     {
-        return $this->belongsTo(JobBenefit::class, 'skill_id');
+        return $this->belongsToMany(Job::class, 'job_skills', 'skill_id', 'job_listing_id');
     }
 }

@@ -25,6 +25,11 @@ class AuthController extends Controller
             'role' => 'required|string|in:employer,candidate',
         ]);
 
+        // Check if user already exists
+        if (User::where('email', $request->email)->exists()) {
+            return response()->json(['message' => 'User already exists'], 409);
+        }
+
         // Create a new user instance
         $user = User::create([
             'name' => $request->name,
@@ -60,6 +65,11 @@ class AuthController extends Controller
         // If the user is not found or the password does not match, return 401
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        // Check if user exists and have token
+        if ($user->tokens()->exists()) {
+            $user->tokens()->delete();
         }
 
         // Generate a new token for the user

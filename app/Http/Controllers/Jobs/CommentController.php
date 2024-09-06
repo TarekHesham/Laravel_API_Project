@@ -12,9 +12,12 @@ class CommentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if ($request->user()->cannot('viewAny', Comment::class)) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+        return Comment::all();
     }
 
     /**

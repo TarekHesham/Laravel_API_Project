@@ -12,8 +12,8 @@ class Location extends Model
     use HasFactory;
     protected $table = "locations";
 
-    public function job(): BelongsTo
+    public function job()
     {
-        return $this->belongsTo(Job::class, 'location_id');
+        return $this->belongsToMany(Job::class, 'location_id');
     }
 }

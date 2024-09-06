@@ -30,10 +30,15 @@ class JobController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Job $job)
     {
         // Only allow authenticated users to store a job posting
-        $this->authorize('create', Job::class);
+        if (!$request->user()->can('create', $job)) {
+            // Return a 403 error if the user doesn't have permission
+            return response()->json([
+                'error' => 'You do not have permission to create job, only employers can create jobs'
+            ], 403);
+        }
 
         $request_data = $request->all();
 
@@ -47,8 +52,6 @@ class JobController extends Controller
             'salary_to' => 'required|integer|gt:salary_from',
             'work_type' => 'required|string|in:remote,onsite,hybrid',
             'location_id' => 'required|integer',
-
-            // TESTING Here
             'skills' => 'array|exists:skills,id',
             'benefits' => 'array|exists:benefits,id',
             'categories' => 'array|exists:categories,id',
@@ -133,38 +136,50 @@ class JobController extends Controller
     public function update(Request $request, Job $job): JsonResponse
     {
         // Check if the authenticated user has permission to update the job
-        $this->authorize('update', $job);
+        if (!$request->user()->can('update', $job)) {
+            return response()->json([
+                'error' => 'You do not have permission to update this job'
+            ], 403);
+        }
 
         // Validate the input
-        $request->validate([
-            'job_title' => 'required|string',
-            'description' => 'required|string',
-            'location_id' => 'required|integer',
-            'deadline' => 'required|date',
-            'experience_level' => 'required|string|in:entry_level,intermediate,expert',
-            'salary_from' => 'required|integer',
-            'salary_to' => 'required|integer|gt:salary_from',
-            'work_type' => 'required|string|in:remote,onsite,hybrid'
+        $validatedData = $request->validate([
+            'job_title' => 'string',
+            'description' => 'string',
+            'deadline' => 'date',
+            'experience_level' => 'string|in:entry_level,intermediate,expert',
+            'salary_from' => 'integer',
+            'salary_to' => 'integer|gt:salary_from',
+            'work_type' => 'string|in:remote,onsite,hybrid',
+            'location_id' => 'integer',
+            'skills' => 'array|exists:skills,id',
+            'benefits' => 'array|exists:benefits,id',
+            'categories' => 'array|exists:categories,id',
         ]);
 
-        // Update the job posting
-        $job->update($request->only([
-            'job_title',
-            'description',
-            'experience_level',
-            'salary_from',
-            'salary_to',
-            'work_type',
-            'deadline',
-            'location_id',
-        ]));
+        // Update the job posting without the related data
+        $job->update($validatedData);
 
-        // Return a 201 response with the updated job posting
+        // Sync the relationships
+        if (isset($validatedData['skills'])) {
+            $job->skills()->sync($validatedData['skills']);
+        }
+
+        if (isset($validatedData['benefits'])) {
+            $job->benefits()->sync($validatedData['benefits']);
+        }
+
+        if (isset($validatedData['categories'])) {
+            $job->categories()->sync($validatedData['categories']);
+        }
+
+        // Return a 200 response with the updated job posting
         return response()->json([
             'message' => 'Job updated successfully',
-            'job' => $job
-        ], 201);
+            'job' => $job->load('skills', 'benefits', 'categories')
+        ], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
