@@ -36,7 +36,11 @@ class User extends Authenticatable
     {
         if ($this->isEmployer()) {
             return $this->hasMany(Job::class, 'user_id');
-        } else if ($this->isCandidate()) {
+        }
+    }
+    function applications(): HasMany
+    {
+        if ($this->isCandidate()) {
             return $this->hasMany(Application::class, 'candidate_id');
         }
     }
