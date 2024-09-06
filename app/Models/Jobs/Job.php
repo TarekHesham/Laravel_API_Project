@@ -32,6 +32,7 @@ class Job extends Model
         'salary_from',
         'salary_to',
         'work_type',
+        'status',
         'deadline',
         'location_id',
         'employer_id'
