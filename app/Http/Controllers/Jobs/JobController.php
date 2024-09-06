@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Jobs;
 
-use App\Http\Resources\JobResource;
-use App\Models\Job;
-use App\Models\JobBenefit;
-use App\Models\JobCategory;
-use App\Models\JobSkill;
+use App\Models\Jobs\Job;
+use App\Models\Jobs\JobBenefit;
+use App\Models\Jobs\JobCategory;
+use App\Models\Jobs\JobSkill;
+use App\Http\Resources\Jobs\JobResource;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -105,7 +106,7 @@ class JobController extends Controller
      * Display the specified resource.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Job $job
+     * @param \App\Models\Jobs\Job $job
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Request $request, Job $job): JsonResponse
@@ -114,7 +115,7 @@ class JobController extends Controller
         if (!$request->user()->can('view', $job)) {
             // Return a 403 error if the user doesn't have permission
             return response()->json([
-                'message' => 'You do not have permission to view this job'
+                'error' => 'You do not have permission to view this job'
             ], 403);
         }
 
@@ -126,7 +127,7 @@ class JobController extends Controller
      * Update the specified job posting in storage.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Job $job
+     * @param \App\Models\Jobs\Job $job
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Job $job): JsonResponse
@@ -168,7 +169,7 @@ class JobController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param \App\Models\Job $job
+     * @param \App\Models\Jobs\Job $job
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Job $job)

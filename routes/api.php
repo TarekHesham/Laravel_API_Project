@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\JobController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Jobs\JobController;
+use App\Http\Controllers\Jobs\CommentController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

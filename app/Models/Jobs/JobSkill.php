@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Jobs;
 
+use App\Models\Dependency\Skills;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class JobCategory extends Model
+class JobSkill extends Model
 {
     use HasFactory;
-    protected $table = "job_category";
+    protected $table = "job_skills";
     public $timestamps = false;
-
     /**
      * The attributes that are mass assignable.
      *
@@ -19,15 +19,17 @@ class JobCategory extends Model
      */
     protected $fillable = [
         'job_listing_id',
-        'category_id',
+        'skill_id'
     ];
+
+
     public function job(): BelongsTo
     {
         return $this->belongsTo(Job::class, 'job_id');
     }
 
-    public function category(): BelongsTo
+    public function skill(): BelongsTo
     {
-        return $this->BelongsTo(Categories::class, 'category_id');
+        return $this->BelongsTo(Skills::class, 'skill_id');
     }
 }

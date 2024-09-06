@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Jobs;
 
+use App\Models\Dependency\Categories;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class JobBenefit extends Model
+class JobCategory extends Model
 {
     use HasFactory;
-    protected $table = "job_benefits";
+    protected $table = "job_category";
     public $timestamps = false;
 
     /**
@@ -19,16 +20,15 @@ class JobBenefit extends Model
      */
     protected $fillable = [
         'job_listing_id',
-        'benefit_id',
+        'category_id',
     ];
-
     public function job(): BelongsTo
     {
         return $this->belongsTo(Job::class, 'job_id');
     }
 
-    public function benefit(): BelongsTo
+    public function category(): BelongsTo
     {
-        return $this->BelongsTo(Benefits::class, 'benefit_id');
+        return $this->BelongsTo(Categories::class, 'category_id');
     }
 }

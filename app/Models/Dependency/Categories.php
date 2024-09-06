@@ -1,18 +1,19 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Dependency;
 
+use App\Models\Jobs\JobCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Benefits extends Model
+class Categories extends Model
 {
     use HasFactory;
-    protected $table = "benefits";
+    protected $table = "categories";
 
     function benefit(): BelongsTo
     {
-        return $this->belongsTo(JobBenefit::class, 'benefit_id');
+        return $this->belongsTo(JobCategory::class, 'category_id');
     }
 }

@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Jobs;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Dependency\BenefitResource;
 
-class JobSkillResource extends JsonResource
+class JobBenefitResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,6 +16,6 @@ class JobSkillResource extends JsonResource
     public function toArray(Request $request): object
     {
         // return parent::toArray($request);
-        return new SkillResource($this->skill);
+        return new BenefitResource($this->benefit);
     }
 }

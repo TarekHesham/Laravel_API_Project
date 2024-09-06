@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Jobs;
 
-use App\Models\JobBenefit;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Users\CommentResource;
+use App\Http\Resources\Users\UserResource;
 
 class JobResource extends JsonResource
 {
