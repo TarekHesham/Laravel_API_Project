@@ -2,7 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use App\Models\Users\Comment;
+use App\Policies\JobPolicy;
+use App\Policies\CommentPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\PersonalAccessToken;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+        // Add polices
+        Gate::define(User::class, JobPolicy::class);
+        Gate::define(Comment::class, CommentPolicy::class);
     }
 }
