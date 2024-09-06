@@ -11,7 +11,8 @@ class Location extends Model
 {
     use HasFactory;
     protected $table = "locations";
-
+    protected $fillable = ['name'];
+    
     public function job()
     {
         return $this->belongsToMany(Job::class, 'location_id');

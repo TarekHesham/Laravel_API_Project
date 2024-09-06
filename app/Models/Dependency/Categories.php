@@ -12,8 +12,8 @@ class Categories extends Model
 {
     use HasFactory;
     protected $table = "categories";
-
-    // Define inverse relationships if needed
+    protected $fillable = ['name'];
+    
     public function jobListings()
     {
         return $this->belongsToMany(Job::class, 'job_categories', 'category_id', 'job_listing_id');
