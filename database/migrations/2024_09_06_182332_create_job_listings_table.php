@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Job Tables
+
         Schema::create('job_listings', function (Blueprint $table) {
             $table->id();
             $table->string('job_title');
@@ -53,15 +53,6 @@ return new class extends Migration
             $table->unique(['job_listing_id', 'image']);
         });
 
-        schema::create('comments', function (Blueprint $table) {
-            $table->id();
-            $table->text('content');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('job_id')->constrained('job_listings')->onDelete('cascade');
-            $table->timestamps();
-        });
-
-        // Employer Tables
         Schema::create('employer_jobs', function (Blueprint $table) {
             $table->id();
             $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
@@ -70,31 +61,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Candidate Tables
-        schema::create('applications', function (Blueprint $table) {
-            $table->id();
-            $table->string('status');
-            $table->string('type');
-            $table->foreignId('candidate_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('job_id')->constrained('job_listings')->onDelete('cascade');
-            $table->timestamps();
-        });
-
-        Schema::create('form_application', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email');
-            $table->string('phone_number');
-            $table->foreignId('application_id')->constrained('applications')->onDelete('cascade');
-            $table->timestamps();
-        });
-
-        schema::create('cv_application', function (Blueprint $table) {
-            $table->id();
-            $table->string('cv');
-            $table->foreignId('application_id')->constrained('applications')->onDelete('cascade');
-            $table->timestamps();
-        });
     }
 
     /**
@@ -102,11 +68,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cv_application');
-        Schema::dropIfExists('form_application');
-        Schema::dropIfExists('applications');
         Schema::dropIfExists('employer_jobs');
-        Schema::dropIfExists('comments');
         Schema::dropIfExists('job_images');
         Schema::dropIfExists('job_category');
         Schema::dropIfExists('job_skills');
