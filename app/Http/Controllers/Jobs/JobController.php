@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Jobs;
 
 use App\Models\Jobs\Job;
-use App\Models\Jobs\JobBenefit;
-use App\Models\Jobs\JobCategory;
-use App\Models\Jobs\JobSkill;
 use App\Http\Resources\Jobs\JobResource;
 use App\Http\Controllers\Controller;
+use App\Models\Dependency\Benefits;
+use App\Models\Dependency\Categories;
+use App\Models\Dependency\Skills;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -40,68 +40,49 @@ class JobController extends Controller
             ], 403);
         }
 
-        $request_data = $request->all();
-
         // Validate the input
-        $job_validator = Validator::make($request_data, [
-            'job_title' => 'required|string',
-            'description' => 'required|string',
-            'deadline' => 'required|date',
-            'experience_level' => 'required|string|in:entry_level,intermediate,expert',
-            'salary_from' => 'required|integer',
-            'salary_to' => 'required|integer|gt:salary_from',
-            'work_type' => 'required|string|in:remote,onsite,hybrid',
-            'location_id' => 'required|integer',
+        $validatedData = $request->validate([
+            'job_title' => 'string|required',
+            'description' => 'string|required',
+            'deadline' => 'date|required',
+            'experience_level' => 'string|in:entry_level,intermediate,expert|required',
+            'salary_from' => 'integer|required',
+            'salary_to' => 'integer|gt:salary_from|required',
+            'work_type' => 'string|in:remote,onsite,hybrid|required',
+            'location_id' => 'integer|required',
             'skills' => 'array|exists:skills,id',
             'benefits' => 'array|exists:benefits,id',
             'categories' => 'array|exists:categories,id',
         ]);
 
-        // Return a 422 error if validation fails
-        if ($job_validator->fails()) {
-            return response()->json([
-                "message" => "Errors with your request",
-                "errors" => $job_validator->errors()
-            ], 422);
+        // Add the user as the employer
+        $validatedData['employer_id'] = $request->user()->id;
+
+        // Create a new job listing
+        $job = Job::create($validatedData);
+
+        // Handle skills
+        if (isset($validatedData['skills'])) {
+            $skillIds = $this->handleEntities($validatedData['skills'], Skills::class, 'job_skills', $job->id);
+            $job->skills()->sync($skillIds);
         }
 
-        // Add the authenticated user's id to the request data
-        $request_data['employer_id'] = $request->user()->id;
-
-        // Store the new job posting
-        $job = Job::create($request_data);
-
-        if (isset($request_data['skills'])) {
-            foreach ($request_data['skills'] as $skill) {
-                JobSkill::create([
-                    'job_listing_id' => $job->id,
-                    'skill_id' => $skill
-                ]);
-            }
+        // Handle benefits
+        if (isset($validatedData['benefits'])) {
+            $benefitIds = $this->handleEntities($validatedData['benefits'], Benefits::class, 'job_benefits', $job->id);
+            $job->benefits()->sync($benefitIds);
         }
 
-        if (isset($request_data['benefits'])) {
-            foreach ($request_data['benefits'] as $benefit) {
-                JobBenefit::create([
-                    'job_listing_id' => $job->id,
-                    'benefit_id' => $benefit
-                ]);
-            }
+        // Handle categories
+        if (isset($validatedData['categories'])) {
+            $categoryIds = $this->handleEntities($validatedData['categories'], Categories::class, 'job_category', $job->id);
+            $job->categories()->sync($categoryIds);
         }
 
-        if (isset($request_data['categories'])) {
-            foreach ($request_data['categories'] as $category) {
-                JobCategory::create([
-                    'job_listing_id' => $job->id,
-                    'category_id' => $category
-                ]);
-            }
-        }
-
-        // Return a 201 response with the new job posting
+        // Return success response
         return response()->json([
-            'message' => 'Job created successfully',
-            'job' => $job
+            'message' => 'Job listing created successfully',
+            'job' => $job->load('skills', 'benefits', 'categories')
         ], 201);
     }
 
@@ -142,8 +123,10 @@ class JobController extends Controller
             ], 403);
         }
 
-        // Validate the input
-        $validatedData = $request->validate([
+        $validatedData = $request->all();
+
+        // Create a validator instance
+        $validator = Validator::make($validatedData, [
             'job_title' => 'string',
             'description' => 'string',
             'deadline' => 'date',
@@ -155,27 +138,55 @@ class JobController extends Controller
             'skills' => 'array|exists:skills,id',
             'benefits' => 'array|exists:benefits,id',
             'categories' => 'array|exists:categories,id',
+        ], [
+            'job_title.string' => 'The job title must be a string.',
+            'description.string' => 'The description must be a string.',
+            'deadline.date' => 'The deadline must be a valid date.',
+            'experience_level.in' => 'The experience level must be one of the following: entry_level, intermediate, expert.',
+            'salary_from.integer' => 'The salary from must be an integer.',
+            'salary_to.integer' => 'The salary to must be an integer.',
+            'salary_to.gt' => 'The salary to must be greater than salary from.',
+            'work_type.in' => 'The work type must be one of the following: remote, onsite, hybrid.',
+            'location_id.integer' => 'The location id must be an integer.',
+            'skills.array' => 'The skills must be an array.',
+            'skills.exists' => 'One or more skills do not exist.',
+            'benefits.array' => 'The benefits must be an array.',
+            'benefits.exists' => 'One or more benefits do not exist.',
+            'categories.array' => 'The categories must be an array.',
+            'categories.exists' => 'One or more categories do not exist.',
         ]);
 
-        // Update the job posting without the related data
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Update the job listing
         $job->update($validatedData);
-
-        // Sync the relationships
+        // Handle skills
         if (isset($validatedData['skills'])) {
-            $job->skills()->sync($validatedData['skills']);
+            $skillIds = $this->handleEntities($validatedData['skills'], Skills::class, 'job_skills', $job->id);
+            $job->skills()->sync($skillIds);
         }
 
+        // Handle benefits
         if (isset($validatedData['benefits'])) {
-            $job->benefits()->sync($validatedData['benefits']);
+            $benefitIds = $this->handleEntities($validatedData['benefits'], Benefits::class, 'job_benefits', $job->id);
+            $job->benefits()->sync($benefitIds);
         }
 
+        // Handle categories
         if (isset($validatedData['categories'])) {
-            $job->categories()->sync($validatedData['categories']);
+            $categoryIds = $this->handleEntities($validatedData['categories'], Categories::class, 'job_category', $job->id);
+            $job->categories()->sync($categoryIds);
         }
 
-        // Return a 200 response with the updated job posting
+        // Return success response
         return response()->json([
-            'message' => 'Job updated successfully',
+            'message' => 'Job listing updated successfully',
             'job' => $job->load('skills', 'benefits', 'categories')
         ], 200);
     }
@@ -187,12 +198,43 @@ class JobController extends Controller
      * @param \App\Models\Jobs\Job $job
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Job $job)
+    public function destroy(Request $request, Job $job)
     {
-        $this->authorize('delete', $job);
+        // Check if the authenticated user has permission to delete the job
+        if (!$request->user()->can('delete', $job)) {
+            return response()->json([
+                'error' => 'You do not have permission to delete this job'
+            ], 403);
+        }
 
+        // Detach the related data
+        $job->skills()->detach();
+        $job->benefits()->detach();
+        $job->categories()->detach();
+        $job->comments()->delete();
+
+        // Delete the job listing
         $job->delete();
 
-        return response()->json(['message' => 'Job deleted successfully']);
+        // Return success response
+        return response()->json([
+            'message' => 'Job listing deleted successfully'
+        ], 200);
+    }
+
+    /**
+     * Handle entities: Check if entities exist, create if not, and return their IDs.
+     */
+    private function handleEntities(array $ids, string $modelClass, string $key = 'id', string $jobId): array
+    {
+        $model = new $modelClass;
+        $existingIds = $model::whereIn("id", $ids)->pluck("id")->toArray();
+        $newIds = array_diff($ids, $existingIds);
+
+        foreach ($newIds as $id) {
+            $model::create([$key => $id, 'job_listing_id' => $jobId]);
+        }
+
+        return $ids;
     }
 }
