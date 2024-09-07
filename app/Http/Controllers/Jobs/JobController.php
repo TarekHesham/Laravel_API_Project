@@ -22,6 +22,10 @@ class JobController extends Controller
      */
     public function index()
     {
+        if (auth()->user()->isAdmin()) {
+            return JobResource::collection(Job::all())->resolve();
+        }
+
         $jobs = Job::where('status', 'open')->get();
         if ($jobs->isEmpty()) {
             return response()->json([
@@ -73,28 +77,42 @@ class JobController extends Controller
         $validatedData['employer_id'] = $request->user()->id;
         
         DB::beginTransaction();
+        try {
+            // Create a new job listing
+            // refresh to return with the default values instead of null
+            $job = Job::create($validatedData)->refresh();
 
-        // Create a new job listing
-        // refresh to return with the default values instead of null
-        $job = Job::create($validatedData)->refresh();
+            DB::table('employer_jobs')
+            ->insert([
+                'employer_id' => $request->user()->id,
+                'job_listing_id' => $job->id,
+                'created_at' => now()
+            ]);
 
-        // Handle skills
-        if (isset($validatedData['skills'])) {
-            $skillIds = $this->handleEntities($validatedData['skills'], Skills::class, 'job_skills', $job->id);
-            $job->skills()->sync($skillIds);
+            // Handle skills
+            if (isset($validatedData['skills'])) {
+                $skillIds = $this->handleEntities($validatedData['skills'], Skills::class, 'job_skills', $job->id);
+                $job->skills()->sync($skillIds);
+            }
+
+            // Handle benefits
+            if (isset($validatedData['benefits'])) {
+                $benefitIds = $this->handleEntities($validatedData['benefits'], Benefits::class, 'job_benefits', $job->id);
+                $job->benefits()->sync($benefitIds);
+            }
+
+            // Handle categories
+            if (isset($validatedData['categories'])) {
+                $categoryIds = $this->handleEntities($validatedData['categories'], Categories::class, 'job_category', $job->id);
+                $job->categories()->sync($categoryIds);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
         }
 
-        // Handle benefits
-        if (isset($validatedData['benefits'])) {
-            $benefitIds = $this->handleEntities($validatedData['benefits'], Benefits::class, 'job_benefits', $job->id);
-            $job->benefits()->sync($benefitIds);
-        }
-
-        // Handle categories
-        if (isset($validatedData['categories'])) {
-            $categoryIds = $this->handleEntities($validatedData['categories'], Categories::class, 'job_category', $job->id);
-            $job->categories()->sync($categoryIds);
-        }
         DB::commit();
 
         // Return success response
@@ -114,7 +132,7 @@ class JobController extends Controller
     public function show(Request $request, Job $job): JsonResponse
     {
         // Check if the authenticated user has permission to view the job
-        if (!$request->user()->can('view', $job)) {
+        if (!auth()->user()->can('view', $job)) {
             // Return a 403 error if the user doesn't have permission
             return response()->json([
                 'error' => 'You do not have permission to view this job'
@@ -256,6 +274,62 @@ class JobController extends Controller
         return response()->json([
             'message' => 'Job listing deleted successfully'
         ], 200);
+    }
+
+    public function acceptReject(Request $request, Job $job) {
+        if (!auth()->user()->can('acceptReject', $job)) {
+            // Return a 403 error if the user doesn't have permission
+            return response()->json([
+                'error' => 'You do not have permission to accept or reject this job'
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:accepted,rejected'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Start a new database transaction
+        DB::beginTransaction();
+
+        try {
+            // Update the job status in 'jobs_listing' table
+            $job->update([
+                'status' => $request->status == 'accepted' ? 'open' : 'closed'
+            ]);
+    
+            // Update the status in 'employer_jobs' table
+            DB::table('employer_jobs')
+                ->where('job_listing_id', $job->id)
+                ->update([
+                    'status' => $request->status == 'accepted' ? 'accepted' : 'rejected',
+                    'updated_at' => now()
+                ]);
+
+
+            // Commit the transaction
+            DB::commit();
+
+            return response()->json([
+                'message' => "Job {$request->status} successfully.",
+                'data' => new JobResource($job)
+            ], 200);
+
+        } catch (Exception $e) {
+            // Rollback the transaction if something goes wrong
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Failed to update job status.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

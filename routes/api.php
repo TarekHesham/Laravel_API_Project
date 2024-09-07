@@ -21,6 +21,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // employer
     Route::post('/employer/{job}/cancel', [EmployerJobController::class, 'cancelJob']);
     Route::get('/employer/jobs', [EmployerJobController::class, 'index']);
+    // Admin
+    Route::put('/jobs/{job}/status', [JobController::class, 'acceptReject']);
 });
 
 // TEST Accounts

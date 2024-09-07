@@ -62,10 +62,16 @@ class EmployerJobController extends Controller
             return response()->json(['message' => 'Job has already been canceled'], 400);
         }
 
+        // Start a new database transaction
+        DB::beginTransaction();
+
         // Update the status of the job
         $job->update(['status' => 'closed']);
         $job->pivot->update(['status' => 'canceled']);
 
+        // end the database transaction
+        DB::commit();
+        
         // Return the canceled job
         return response()->json([
             'message' => 'Job has been successfully canceled',

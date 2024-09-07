@@ -72,4 +72,20 @@ class JobPolicy
     {
         return $user->isAdmin() || $user->isEmployer() && $user->id === $job->employer_id;
     }
+
+    /**
+     * Determine whether the user can close the job
+     */
+    public function close(User $user, Job $job): bool
+    {
+        return $user->isAdmin() || $user->isEmployer() && $user->id === $job->employer_id;
+    }
+
+    /**
+     * Determine whether the user can accept/reject the job
+     */
+    public function acceptReject(User $user, Job $job): bool
+    {
+        return $user->isAdmin();
+    }
 }

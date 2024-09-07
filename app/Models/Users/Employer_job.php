@@ -15,6 +15,8 @@ class Employer_job extends Model
         'status',
         'employer_id',
         'job_id',
+        'created_at',
+        'updated_at'
     ];
 
     public function job(): BelongsTo
