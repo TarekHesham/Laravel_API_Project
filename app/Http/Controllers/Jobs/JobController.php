@@ -23,7 +23,7 @@ class JobController extends Controller
     public function index()
     {
         $jobs = Job::where('status', 'open')->get();
-        return JobResource::collection($jobs);
+        return JobResource::collection($jobs)->resolve();
     }
 
     /**
