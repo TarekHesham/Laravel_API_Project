@@ -24,7 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // TEST Accounts
-// test@test.com -> employer
-// test2@test2.com -> candidate
+// emp@emp.com -> employer
+// can@can.com -> candidate
 // admin@admin.com -> admin
 // password for all accounts: 123456789

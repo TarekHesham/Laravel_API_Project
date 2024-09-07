@@ -46,9 +46,9 @@ class JobController extends Controller
                 'error' => 'You do not have permission to create job, only employers can create jobs'
             ], 403);
         }
-
+        $validatedData = $request->all();
         // Validate the input
-        $validatedData = Validator::make($request->all(), [
+        $validator = Validator::make($validatedData, [
             'job_title' => 'string|required',
             'description' => 'string|required',
             'deadline' => 'date|required',
@@ -62,10 +62,10 @@ class JobController extends Controller
             'categories' => 'array|exists:categories,id',
         ]);
 
-        if ($validatedData->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'message' => 'Validation failed',
-                'errors' => $validatedData->errors()
+                'errors' => $validator->errors()
             ], 422);
         };
 
