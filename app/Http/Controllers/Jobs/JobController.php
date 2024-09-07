@@ -11,6 +11,7 @@ use App\Models\Dependency\Skills;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class JobController extends Controller
 {
@@ -22,7 +23,7 @@ class JobController extends Controller
     public function index()
     {
         $jobs = Job::where('status', 'open')->get();
-        return JobResource::collection($jobs);
+        return JobResource::collection($jobs)->resolve();
     }
 
     /**
@@ -46,11 +47,11 @@ class JobController extends Controller
             'job_title' => 'string|required',
             'description' => 'string|required',
             'deadline' => 'date|required',
-            'experience_level' => 'string|in:entry_level,intermediate,expert|required',
+            'experience_level' => 'string|required',
             'salary_from' => 'integer|required',
             'salary_to' => 'integer|gt:salary_from|required',
             'work_type' => 'string|in:remote,onsite,hybrid|required',
-            'location_id' => 'integer|required',
+            'location_id' => 'integer|exists:locations,id|required',
             'skills' => 'array|exists:skills,id',
             'benefits' => 'array|exists:benefits,id',
             'categories' => 'array|exists:categories,id',
@@ -58,9 +59,12 @@ class JobController extends Controller
 
         // Add the user as the employer
         $validatedData['employer_id'] = $request->user()->id;
+        
+        DB::beginTransaction();
 
         // Create a new job listing
-        $job = Job::create($validatedData);
+        // refresh to return with the default values instead of null
+        $job = Job::create($validatedData)->refresh();
 
         // Handle skills
         if (isset($validatedData['skills'])) {
@@ -79,11 +83,11 @@ class JobController extends Controller
             $categoryIds = $this->handleEntities($validatedData['categories'], Categories::class, 'job_category', $job->id);
             $job->categories()->sync($categoryIds);
         }
-
+        DB::commit();
         // Return success response
         return response()->json([
             'message' => 'Job listing created successfully',
-            'job' => $job->load('skills', 'benefits', 'categories')
+            'job' => new JobResource($job->load('skills', 'benefits', 'categories'))
         ], 201);
     }
 
