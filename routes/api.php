@@ -26,4 +26,4 @@ Route::middleware('auth:sanctum')->group(function () {
 // TEST TOKENS
 // 1|zKwf31BHjNFW682NiUi9GkCo8IjB19YJTkXdDN8s23b0db52 -> employer
 // 2|zqoUZkHQOnWx4PTJa510Wi5dESroVlOeRBHzFhJw10e8639b -> 
-// 4|3Xr7YaMheGk2uLdemEeLRJiTZUcVR7gPegaVlYq854911c21 -> admin
+// 6|x8P7rzTjgzUY6PPz74gT3oo4G7jhslcXQPdd1oyG7d86c259 -> admin
