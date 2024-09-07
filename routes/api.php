@@ -15,15 +15,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
 
     // Jobs
-    Route::resource('/jobs', JobController::class);
+    Route::apiResource('/jobs', JobController::class);
     // comments
-    Route::resource('/comments', CommentController::class);
+    Route::apiResource('/comments', CommentController::class);
     // employer
     Route::post('/employer/{job}/cancel', [EmployerJobController::class, 'cancelJob']);
     Route::get('/employer/jobs', [EmployerJobController::class, 'index']);
 });
 
-// TEST TOKENS
-// 1|zKwf31BHjNFW682NiUi9GkCo8IjB19YJTkXdDN8s23b0db52 -> employer
-// 2|zqoUZkHQOnWx4PTJa510Wi5dESroVlOeRBHzFhJw10e8639b -> 
-// 6|x8P7rzTjgzUY6PPz74gT3oo4G7jhslcXQPdd1oyG7d86c259 -> admin
+// TEST Accounts
+// test@test.com -> employer
+// test2@test2.com -> candidate
+// admin@admin.com -> admin
+// password for all accounts: 123456789
