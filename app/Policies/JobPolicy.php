@@ -4,7 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Jobs\Job;
-use Illuminate\Auth\Access\Response;
+
 
 class JobPolicy
 {
@@ -61,6 +61,14 @@ class JobPolicy
      * Determine whether the user can permanently delete the model.
      */
     public function forceDelete(User $user, Job $job): bool
+    {
+        return $user->isAdmin() || $user->isEmployer() && $user->id === $job->employer_id;
+    }
+
+    /**
+     * Determine whether the user can cancel the job
+     */
+    public function cancel(User $user, Job $job): bool
     {
         return $user->isAdmin() || $user->isEmployer() && $user->id === $job->employer_id;
     }

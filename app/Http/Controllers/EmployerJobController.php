@@ -25,6 +25,11 @@ class EmployerJobController extends Controller
             return response()->json(['message' => 'Unauthorized, not an employer'], 401);
         }
 
+        // Check if the user has any jobs
+        if (Auth::user()->jobs->count() === 0) {
+            return response()->json(['message' => 'You have no jobs'], 404);
+        }
+
         // Return the jobs of the current employer
         return EmployerJobResource::collection(Auth::user()->jobs)->resolve();
     }
@@ -37,6 +42,10 @@ class EmployerJobController extends Controller
      */
     public function cancelJob($jobId)
     {
+        // Check if the user can cancel the job
+        if (!Auth::user()->can('cancel', Job::class)) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
         // Get the current employer
         $employer = Auth::user();
 

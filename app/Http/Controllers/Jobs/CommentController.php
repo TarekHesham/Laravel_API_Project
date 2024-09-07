@@ -15,7 +15,7 @@ class CommentController extends Controller
     public function index(Request $request)
     {
         if ($request->user()->cannot('viewAny', Comment::class)) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Unauthorized to view all comments'], 401);
         }
         return Comment::all();
     }
@@ -45,15 +45,6 @@ class CommentController extends Controller
 
         Comment::create($request_data);
         return response()->json(['message' => 'Comment created successfully'], 201);
-        // return back();
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Comment $comment)
-    {
-        //
     }
 
     /**

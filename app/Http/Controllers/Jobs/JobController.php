@@ -23,6 +23,11 @@ class JobController extends Controller
     public function index()
     {
         $jobs = Job::where('status', 'open')->get();
+        if ($jobs->isEmpty()) {
+            return response()->json([
+                'message' => 'No open jobs found'
+            ], 404);
+        }
         return JobResource::collection($jobs)->resolve();
     }
 
@@ -43,7 +48,7 @@ class JobController extends Controller
         }
 
         // Validate the input
-        $validatedData = $request->validate([
+        $validatedData = Validator::make($request->all(), [
             'job_title' => 'string|required',
             'description' => 'string|required',
             'deadline' => 'date|required',
@@ -56,6 +61,13 @@ class JobController extends Controller
             'benefits' => 'array|exists:benefits,id',
             'categories' => 'array|exists:categories,id',
         ]);
+
+        if ($validatedData->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validatedData->errors()
+            ], 422);
+        };
 
         // Add the user as the employer
         $validatedData['employer_id'] = $request->user()->id;
@@ -84,6 +96,7 @@ class JobController extends Controller
             $job->categories()->sync($categoryIds);
         }
         DB::commit();
+
         // Return success response
         return response()->json([
             'message' => 'Job listing created successfully',
@@ -106,6 +119,12 @@ class JobController extends Controller
             return response()->json([
                 'error' => 'You do not have permission to view this job'
             ], 403);
+        }
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
         }
 
         // Return the job posting as JSON
@@ -167,7 +186,10 @@ class JobController extends Controller
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()
             ], 422);
-        }
+        };
+
+        // Start a new database transaction
+        DB::beginTransaction();
 
         // Update the job listing
         $job->update($validatedData);
@@ -188,6 +210,9 @@ class JobController extends Controller
             $categoryIds = $this->handleEntities($validatedData['categories'], Categories::class, 'job_category', $job->id);
             $job->categories()->sync($categoryIds);
         }
+
+        // Commit the transaction
+        DB::commit();
 
         // Return success response
         return response()->json([
@@ -212,6 +237,9 @@ class JobController extends Controller
             ], 403);
         }
 
+        // Start a new database transaction
+        DB::beginTransaction();
+
         // Detach the related data
         $job->skills()->detach();
         $job->benefits()->detach();
@@ -221,6 +249,9 @@ class JobController extends Controller
         // Delete the job listing
         $job->delete();
 
+        // Commit the transaction
+        DB::commit();
+        
         // Return success response
         return response()->json([
             'message' => 'Job listing deleted successfully'

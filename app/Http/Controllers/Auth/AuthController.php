@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -18,12 +19,19 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         // Validate the incoming request
-        $request->validate([
+        $validatedData = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'required|string|in:employer,candidate',
+            'role' => 'required|string|in:employer,candidate'
         ]);
+
+        if ($validatedData->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validatedData->errors()
+            ], 422);
+        };
 
         // Check if user already exists
         if (User::where('email', $request->email)->exists()) {
@@ -54,10 +62,17 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         // Validate the incoming request
-        $request->validate([
+        $validatedData = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required'
         ]);
+
+        if ($validatedData->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validatedData->errors()
+            ], 422);
+        };
 
         // Find a user by the given email
         $user = User::where('email', $request->email)->first();
