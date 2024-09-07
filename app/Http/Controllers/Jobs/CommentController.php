@@ -16,7 +16,7 @@ class CommentController extends Controller
     public function index(Request $request)
     {
         if ($request->user()->cannot('viewAny', Comment::class)) {
-            return response()->json(['message' => 'Unauthorized, admins only'], 401);
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
         return CommentResource::collection(Comment::all());
     }
