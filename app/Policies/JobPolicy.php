@@ -21,7 +21,7 @@ class JobPolicy
      */
     public function view(User $user, Job $job): bool
     {
-        return $user->isAdmin() || $job->status === 'open';
+        return $user->isAdmin() || $user->id === $job->employer_id || $job->status === 'open';
     }
 
     /**
