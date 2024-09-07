@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\EmployerJobController;
 use App\Http\Controllers\Jobs\JobController;
 use App\Http\Controllers\Jobs\CommentController;
 
@@ -17,6 +18,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('/jobs', JobController::class);
     // comments
     Route::resource('/comments', CommentController::class);
+    // employer
+    Route::post('/employer/{job}/cancel', [EmployerJobController::class, 'cancelJob']);
+    Route::get('/employer/jobs', [EmployerJobController::class, 'index']);
 });
 
 // TEST TOKENS

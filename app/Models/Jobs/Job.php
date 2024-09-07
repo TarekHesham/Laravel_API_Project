@@ -34,7 +34,8 @@ class Job extends Model
         'work_type',
         'deadline',
         'location_id',
-        'employer_id'
+        'employer_id',
+        'status',
     ];
 
     function employer(): BelongsTo

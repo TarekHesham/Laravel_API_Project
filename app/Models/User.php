@@ -7,8 +7,11 @@ namespace App\Models;
 use App\Models\Jobs\Job;
 use App\Models\Users\Application;
 use App\Models\Users\Comment;
+use App\Models\Users\Employer_job;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -32,12 +35,7 @@ class User extends Authenticatable
         return $this->role === 'candidate';
     }
 
-    function jobs(): HasMany
-    {
-        if ($this->isEmployer()) {
-            return $this->hasMany(Job::class, 'user_id');
-        }
-    }
+
     function applications(): HasMany
     {
         if ($this->isCandidate()) {
@@ -47,6 +45,16 @@ class User extends Authenticatable
     function comments(): HasMany
     {
         return $this->hasMany(Comment::class, 'user_id');
+    }
+
+    public function employerJobs(): HasMany
+    {
+        return $this->hasMany(Employer_job::class, 'employer_id');
+    }
+
+    public function jobs(): BelongsToMany
+    {
+        return $this->belongsToMany(Job::class, 'employer_jobs', 'employer_id', 'job_listing_id')->withPivot('status');;
     }
 
     /**
