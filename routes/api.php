@@ -16,11 +16,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Jobs
     Route::apiResource('/jobs', JobController::class);
+
     // comments
     Route::apiResource('/comments', CommentController::class);
+
     // employer
     Route::post('/employer/{job}/cancel', [EmployerJobController::class, 'cancelJob']);
     Route::get('/employer/jobs', [EmployerJobController::class, 'index']);
+    
     // Admin
     Route::put('/jobs/{job}/status', [JobController::class, 'acceptReject']);
 });
