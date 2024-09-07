@@ -169,6 +169,9 @@ class JobController extends Controller
             ], 422);
         }
 
+
+        DB::beginTransaction();
+
         // Update the job listing
         $job->update($validatedData);
         // Handle skills
@@ -189,10 +192,11 @@ class JobController extends Controller
             $job->categories()->sync($categoryIds);
         }
 
+        DB::commit();
         // Return success response
         return response()->json([
             'message' => 'Job listing updated successfully',
-            'job' => $job->load('skills', 'benefits', 'categories')
+            'job' => new JobResource($job->load('skills', 'benefits', 'categories'))
         ], 200);
     }
 
