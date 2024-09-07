@@ -8,31 +8,56 @@ use App\Models\Jobs\Job;
 
 class EmployerJobController extends Controller
 {
-
+    /**
+     * Get all jobs of the current employer
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function index()
     {
+        // Check if the user is authenticated
         if (Auth::guest()) {
             return response()->json(['message' => 'Unauthorized'], 401);
-        } else if (Auth::user()->role !== 'employer') {
+        }
+
+        // Check if the user is an employer
+        if (Auth::user()->role !== 'employer') {
             return response()->json(['message' => 'Unauthorized, not an employer'], 401);
         }
+
+        // Return the jobs of the current employer
         return EmployerJobResource::collection(Auth::user()->jobs)->resolve();
     }
 
+    /**
+     * Cancel a job of the current employer
+     *
+     * @param int $jobId The id of the job to cancel
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function cancelJob($jobId)
     {
-        // جلب المستخدم (employer) المسجل
+        // Get the current employer
         $employer = Auth::user();
 
-        // جلب الوظيفة من خلال علاقة jobs في جدول employer_jobs
+        // Get the job
         $job = $employer->jobs()->where('job_listing_id', $jobId)->firstOrFail();
 
-        // تحديث حالة الوظيفة في جدول job_listings إلى 'closed'
-        $job->update(['status' => 'closed']);
+        // Check if the current employer is the owner of the job
+        if ($job->employer_id !== $employer->id) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
-        // تحديث حالة الوظيفة في جدول employer_jobs إلى 'canceled'
+        // Check if the job has already been canceled
+        if ($job->pivot->status === 'canceled') {
+            return response()->json(['message' => 'Job has already been canceled'], 400);
+        }
+
+        // Update the status of the job
+        $job->update(['status' => 'closed']);
         $job->pivot->update(['status' => 'canceled']);
 
+        // Return the canceled job
         return response()->json([
             'message' => 'Job has been successfully canceled',
             'job' => new EmployerJobResource($job)
