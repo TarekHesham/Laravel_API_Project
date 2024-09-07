@@ -15,9 +15,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
 
     // Jobs
-    Route::resource('/jobs', JobController::class);
+    Route::apiResource('/jobs', JobController::class);
     // comments
-    Route::resource('/comments', CommentController::class);
+    Route::apiResource('/comments', CommentController::class)->except('show');
     // employer
     Route::post('/employer/{job}/cancel', [EmployerJobController::class, 'cancelJob']);
     Route::get('/employer/jobs', [EmployerJobController::class, 'index']);
