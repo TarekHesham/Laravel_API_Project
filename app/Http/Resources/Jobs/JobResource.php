@@ -5,6 +5,7 @@ namespace App\Http\Resources\Jobs;
 use App\Http\Resources\Dependency\BenefitResource;
 use App\Http\Resources\Dependency\CategoryResource;
 use App\Http\Resources\Dependency\SkillResource;
+use App\Http\Resources\Dependency\ImageResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Users\CommentResource;
@@ -37,7 +38,8 @@ class JobResource extends JsonResource
             'comments' => CommentResource::collection($this->comments),
             'benefits' => BenefitResource::collection($this->benefits),
             'skills' => SkillResource::collection($this->skills),
-            'categories' => CategoryResource::collection($this->categories)
+            'categories' => CategoryResource::collection($this->categories),
+            'images' => ImageResource::collection($this->images),
         ];
     }
 }

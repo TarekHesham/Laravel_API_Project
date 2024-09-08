@@ -7,7 +7,7 @@ namespace App\Models;
 use App\Models\Jobs\Job;
 use App\Models\Users\Application;
 use App\Models\Users\Comment;
-use App\Models\Users\Employer_job;
+use App\Models\Users\EmployerJob;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -48,7 +48,7 @@ class User extends Authenticatable
 
     public function employerJobs(): HasMany
     {
-        return $this->hasMany(Employer_job::class, 'employer_id');
+        return $this->hasMany(EmployerJob::class, 'employer_id');
     }
 
     public function jobs(): BelongsToMany
