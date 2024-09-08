@@ -22,4 +22,11 @@ class Application extends Model
     {
         return $this->belongsTo(User::class, 'candidate_id', 'id');
     }
+
+    
+    // Relation with cv
+    public function cv(): BelongsTo
+    {
+        return $this->belongsTo(CVApplication::class, 'id', 'application_id');
+    }
 }

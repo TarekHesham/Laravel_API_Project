@@ -62,6 +62,13 @@ return [
             'url' => env('APP_URL') . '/images/jobs',
             'throw' => false,
         ],
+        'job_cv' => [
+            "driver" => "local",
+            'root' => public_path('cvs'),
+            'visibility' => 'public',
+            'url' => env('APP_URL') . '/cvs',
+            'throw' => false,
+        ]
     ],
 
     /*

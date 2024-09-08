@@ -30,15 +30,6 @@ class CommentController extends Controller
         return $comment;
     }
 
-    // Display the specified resource.
-    public function show(Request $request, Comment $comment)
-    {
-        if ($request->user()->cannot('view', $comment)) {
-            return response()->json(['message' => 'Unauthorized to view this comment'], 401);
-        }
-        return $comment;
-    }
-
     /**
      * Store a newly created resource in storage.
      */
