@@ -23,7 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/employer/{job}/cancel', [EmployerJobController::class, 'cancelJob']);
     Route::get('/employer/jobs', [EmployerJobController::class, 'index']);
     // application
-    Route::apiResource('/application', ApplicationController::class);
+    Route::apiResource('/application', ApplicationController::class)->except('update');
 });
 
 // TEST TOKENS

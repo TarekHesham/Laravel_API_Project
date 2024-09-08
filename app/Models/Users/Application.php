@@ -12,7 +12,7 @@ class Application extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['type', 'candidate_id', 'job_id'];
+    protected $fillable = ['type', 'candidate_id', 'job_id', 'status'];
 
     public function job(): BelongsTo
     {

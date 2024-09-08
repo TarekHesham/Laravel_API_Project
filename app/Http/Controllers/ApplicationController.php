@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Users\Application;
-use App\Models\User;
 use App\Http\Resources\ApplicationResource;
+use App\Models\Users\CVApplication;
+use App\Models\Users\FormApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class ApplicationController extends Controller
 {
@@ -22,19 +24,11 @@ class ApplicationController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, Application $application)
+    public function store(Request $request)
     {
-        if (!$request->user()->can('create', $application)) {
+        if (!$request->user()->can('create', Application::class)) {
             // Return a 403 error if the user doesn't have permission
             return response()->json([
                 'error' => 'You do not have permission to apply for a job, only candidates can apply for jobs'
@@ -43,14 +37,44 @@ class ApplicationController extends Controller
 
         // Validate the input
         $validatedData = $request->validate([
-            'type' => 'required|string',
+            'type' => 'required|string|in:cv,form',
             'job_id' => 'required|exists:job_listings,id',
+            'cv' => ['mimes:doc,pdf,docx', Rule::requiredIf(function () use ($request) {
+                return $request->type == 'cv';
+            })],
+            'name' => ['string', Rule::requiredIf(function () use ($request) {
+                return $request->type == 'form';
+            })],
+            'email' => ['email', Rule::requiredIf(function () use ($request) {
+                return $request->type == 'form';
+            })],
+            'phone_number' => ['string', Rule::requiredIf(function () use ($request) {
+                return $request->type == 'form';
+            })],
         ]);
 
+
+        // TODO add transction
         // Add the user as the candidate
         $validatedData['candidate_id'] = $request->user()->id;
-
-        dd($validatedData);
+        $validatedData['status'] = 'pending';
+        $application = Application::create($validatedData)->refresh();
+        
+        if ($application->type == 'cv' && isset($validatedData['cv'])) {
+            CVApplication::create([
+                'application_id'=>$application->id, 
+                'cv'=>$validatedData['cv']
+            ]);
+        } 
+        if ($application->type == 'form') {
+            FormApplication::create([
+                'application_id'=>$application->id, 
+                'name'=>$validatedData['name'],
+                'email'=>$validatedData['email'],
+                'phone_number'=>$validatedData['phone_number']
+            ]);
+        }
+        return response()->json(['message'=>'application was submitted successfully']);
     }
 
     /**
@@ -58,23 +82,13 @@ class ApplicationController extends Controller
      */
     public function show(Application $application)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Application $application)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Application $application)
-    {
-        //
+        if (!Auth::user()->can('view', $application)) {
+            // Return a 403 error if the user doesn't have permission
+            return response()->json([
+                'error' => 'You do not have permission to view this application'
+            ], 403);
+        }
+        return new ApplicationResource($application);
     }
 
     /**
@@ -82,6 +96,13 @@ class ApplicationController extends Controller
      */
     public function destroy(Application $application)
     {
-        //
+        if (!Auth::user()->can('delete', $application)) {
+            // Return a 403 error if the user doesn't have permission
+            return response()->json([
+                'error' => 'You do not have permission to view this application'
+            ], 403);
+        }
+        $application->delete();
+        return response()->json(['message' => 'application deleted successfully']);
     }
 }
