@@ -18,15 +18,6 @@ class CommentPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Comment $comment): bool
-    {
-        //
-        return true;
-    }
-
-    /**
      * Determine whether the user can create models.
      */
     public function create(User $user): bool
@@ -41,7 +32,7 @@ class CommentPolicy
     public function update(User $user, Comment $comment): bool
     {
         //
-        return $user->isAdmin();
+        return $user->id == $comment->user->id;
     }
 
     /**
@@ -50,7 +41,7 @@ class CommentPolicy
     public function delete(User $user, Comment $comment): bool
     {
         //
-        return $user->isAdmin();
+        return $user->isAdmin() || $user->id == $comment->user->id;
     }
 
     /**

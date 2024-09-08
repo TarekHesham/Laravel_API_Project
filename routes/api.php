@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApplicationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\EmployerJobController;
@@ -23,9 +24,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // employer
     Route::post('/employer/{job}/cancel', [EmployerJobController::class, 'cancelJob']);
     Route::get('/employer/jobs', [EmployerJobController::class, 'index']);
-    
+
     // Admin
     Route::put('/jobs/{job}/status', [JobController::class, 'acceptReject']);
+
+    // application
+    Route::apiResource('/application', ApplicationController::class)->except('update');
 });
 
 // TEST Accounts
