@@ -9,6 +9,8 @@ use App\Models\Users\FormApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+
 
 class ApplicationController extends Controller
 {
@@ -54,25 +56,35 @@ class ApplicationController extends Controller
         ]);
 
 
-        // TODO add transction
-        // Add the user as the candidate
-        $validatedData['candidate_id'] = $request->user()->id;
-        $validatedData['status'] = 'pending';
-        $application = Application::create($validatedData)->refresh();
-        
-        if ($application->type == 'cv' && isset($validatedData['cv'])) {
-            CVApplication::create([
-                'application_id'=>$application->id, 
-                'cv'=>$validatedData['cv']
-            ]);
-        } 
-        if ($application->type == 'form') {
-            FormApplication::create([
-                'application_id'=>$application->id, 
-                'name'=>$validatedData['name'],
-                'email'=>$validatedData['email'],
-                'phone_number'=>$validatedData['phone_number']
-            ]);
+        // add transction
+        DB::beginTransaction();
+        try {
+            // Add the user as the candidate
+            $validatedData['candidate_id'] = $request->user()->id;
+            $validatedData['status'] = 'pending';
+            $application = Application::create($validatedData)->refresh();
+            
+            if ($application->type == 'cv' && isset($validatedData['cv'])) {
+                $cv_path = $validatedData['cv']->store("", 'job_cv');
+                
+                CVApplication::create([
+                    'application_id'=>$application->id, 
+                    'cv'=> $cv_path
+                ]);
+            }
+            if ($application->type == 'form') {
+                FormApplication::create([
+                    'application_id'=>$application->id, 
+                    'name'=>$validatedData['name'],
+                    'email'=>$validatedData['email'],
+                    'phone_number'=>$validatedData['phone_number']
+                ]);
+            }
+
+            DB::commit();
+        } catch (Expception $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
         }
         return response()->json(['message'=>'application was submitted successfully']);
     }
