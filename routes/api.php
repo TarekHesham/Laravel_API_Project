@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApplicationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\EmployerJobController;
@@ -15,12 +16,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
 
     // Jobs
-    Route::resource('/jobs', JobController::class);
+    Route::apiResource('/jobs', JobController::class);
     // comments
-    Route::resource('/comments', CommentController::class);
+    Route::apiResource('/comments', CommentController::class)->except('show');
     // employer
     Route::post('/employer/{job}/cancel', [EmployerJobController::class, 'cancelJob']);
     Route::get('/employer/jobs', [EmployerJobController::class, 'index']);
+    // application
+    Route::apiResource('/application', ApplicationController::class)->except('update');
 });
 
 // TEST TOKENS

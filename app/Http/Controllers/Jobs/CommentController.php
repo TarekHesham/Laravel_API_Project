@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Jobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Users\CommentResource;
 use App\Models\Users\Comment;
 
 class CommentController extends Controller
@@ -17,7 +18,7 @@ class CommentController extends Controller
         if ($request->user()->cannot('viewAny', Comment::class)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-        return Comment::all();
+        return CommentResource::collection(Comment::all());
     }
 
     /**
@@ -43,17 +44,11 @@ class CommentController extends Controller
 
         $request_data['user_id'] = $request->user()->id;
 
-        Comment::create($request_data);
-        return response()->json(['message' => 'Comment created successfully'], 201);
-        // return back();
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Comment $comment)
-    {
-        //
+        $comment = Comment::create($request_data);
+        return response()->json([
+        'message' => 'Comment created successfully',
+        'comment' => new CommentResource($comment),
+        ], 201);
     }
 
     /**
@@ -61,7 +56,29 @@ class CommentController extends Controller
      */
     public function update(Request $request, Comment $comment)
     {
-        //
+        $request_data = $request->all();
+
+        // Validate the input
+        $comment_validator = Validator::make($request_data, [
+            'content' => 'required|string',
+            'job_id' => 'required|integer'
+        ]);
+
+        // Return a 422 error if validation fails
+        if ($comment_validator->fails()) {
+            return response()->json([
+                "message" => "Errors with your request",
+                "errors" => $comment_validator->errors()
+            ], 422);
+        }
+
+        $request_data['user_id'] = $request->user()->id;
+
+        $comment->update($request_data);
+        return response()->json([
+            'message' => 'Comment updated successfully',
+            'comment' => new CommentResource($comment),
+        ], 200);
     }
 
     /**
