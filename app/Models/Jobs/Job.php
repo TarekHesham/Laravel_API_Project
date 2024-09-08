@@ -54,6 +54,11 @@ class Job extends Model
         return $this->hasMany(Comment::class, 'job_id');
     }
 
+    function images(): HasMany
+    {
+        return $this->hasMany(JobImage::class, 'job_listing_id');
+    }
+
     public function skills()
     {
         return $this->belongsToMany(Skills::class, 'job_skills', 'job_listing_id', 'skill_id');

@@ -16,9 +16,27 @@ class CommentController extends Controller
     public function index(Request $request)
     {
         if ($request->user()->cannot('viewAny', Comment::class)) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Unauthorized to view all comments'], 401);
         }
         return CommentResource::collection(Comment::all());
+    }
+
+    // Display the specified resource.
+    public function show(Request $request, Comment $comment)
+    {
+        if ($request->user()->cannot('view', $comment)) {
+            return response()->json(['message' => 'Unauthorized to view this comment'], 401);
+        }
+        return $comment;
+    }
+
+    // Display the specified resource.
+    public function show(Request $request, Comment $comment)
+    {
+        if ($request->user()->cannot('view', $comment)) {
+            return response()->json(['message' => 'Unauthorized to view this comment'], 401);
+        }
+        return $comment;
     }
 
     /**

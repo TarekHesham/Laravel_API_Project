@@ -20,12 +20,13 @@
         GET|HEAD        api/jobs/{job} .......................... jobs.show › Jobs\JobController@show
         PUT|PATCH       api/jobs/{job} .......................... jobs.update › Jobs\JobController@update
         DELETE          api/jobs/{job} .......................... jobs.destroy › Jobs\JobController@destroy
+        PUT             api/jobs/{job}/status ................... Jobs\JobController@acceptReject
         POST            api/login ............................... Auth\AuthController@login
         GET|HEAD        api/logout .............................. Auth\AuthController@logout
         POST            api/register ............................ Auth\AuthController@register
         GET|HEAD        api/user ................................ Auth\AuthController@me
         GET|HEAD        sanctum/csrf-cookie ..................... sanctum.csrf-cookie › Laravel\Sanctum › CsrfCookieController@show
-        GET|HEAD        up ...................................... Mintor for testing 
+        GET|HEAD        up ...................................... Mintor for testing
     </pre>
     <pre>
 [
@@ -48,6 +49,8 @@
         "GET": "Get all jobs of the current employer",
         "POST": "Cancel job by id '/{job_id}/cancel'"
     ],
+    "api/sanctum/csrf-cookie": "Generate a new csrf token",
+    "api/jobs/{job}/status": "Accept or reject a job with admin permission, { status = 'accepted' | 'rejected' }"
 ]
     </pre>
 </body>

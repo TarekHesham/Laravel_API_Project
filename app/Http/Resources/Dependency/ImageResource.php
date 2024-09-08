@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Resources\Users;
+namespace App\Http\Resources\Dependency;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
 
-class CommentResource extends JsonResource
+class ImageResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,10 +16,8 @@ class CommentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'content' => $this->content,
-            'user' => new UserResource($this->user),
-            'created_at' => $this->created_at,
+            "id" => $this->id,
+            "image" => Str::startsWith($this->image, 'http') ? $this->image : asset("images/jobs/{$this->image}"),
         ];
     }
 }

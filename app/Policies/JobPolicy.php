@@ -4,7 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Jobs\Job;
-use Illuminate\Auth\Access\Response;
+
 
 class JobPolicy
 {
@@ -63,5 +63,29 @@ class JobPolicy
     public function forceDelete(User $user, Job $job): bool
     {
         return $user->isAdmin() || $user->isEmployer() && $user->id === $job->employer_id;
+    }
+
+    /**
+     * Determine whether the user can cancel the job
+     */
+    public function cancel(User $user, Job $job): bool
+    {
+        return $user->isAdmin() || $user->isEmployer() && $user->id === $job->employer_id;
+    }
+
+    /**
+     * Determine whether the user can close the job
+     */
+    public function close(User $user, Job $job): bool
+    {
+        return $user->isAdmin() || $user->isEmployer() && $user->id === $job->employer_id;
+    }
+
+    /**
+     * Determine whether the user can accept/reject the job
+     */
+    public function acceptReject(User $user, Job $job): bool
+    {
+        return $user->isAdmin();
     }
 }
