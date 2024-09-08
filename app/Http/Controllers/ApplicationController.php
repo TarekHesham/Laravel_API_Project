@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Storage;
 
 class ApplicationController extends Controller
 {
@@ -22,7 +22,7 @@ class ApplicationController extends Controller
         if ($request->user()->cannot('viewAny', Application::class)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-        return ApplicationResource::collection(Application::all());
+        return ApplicationResource::collection(Application::all())->resolve();
     }
 
     /**
@@ -66,7 +66,7 @@ class ApplicationController extends Controller
             
             if ($application->type == 'cv' && isset($validatedData['cv'])) {
                 $cv_path = $validatedData['cv']->store("", 'job_cv');
-                
+
                 CVApplication::create([
                     'application_id'=>$application->id, 
                     'cv'=> $cv_path
@@ -80,6 +80,9 @@ class ApplicationController extends Controller
                     'phone_number'=>$validatedData['phone_number']
                 ]);
             }
+
+            // add count applications to job
+            $application->job->update(['number_of_applications' => $application->job->number_of_applications + 1]);
 
             DB::commit();
         } catch (Expception $e) {
@@ -114,7 +117,29 @@ class ApplicationController extends Controller
                 'error' => 'You do not have permission to view this application'
             ], 403);
         }
+        
+        // delete cv application
+        if ($application->type == 'cv') {
+            $cv = CVApplication::where('application_id', $application->id)->first();
+            // delete from storage
+            $cv_path = $cv->cv;
+            if ($cv_path) {
+                Storage::disk('job_cv')->delete($cv_path);
+            }
+            // delete from database
+            $cv->delete();
+        }
+
+        // delete form application
+        if ($application->type == 'form') {
+            $form = FormApplication::where('application_id', $application->id)->first();
+            $form->delete();
+        }
+
+        // delete application
+        $application->job->update(['number_of_applications' => $application->job->number_of_applications > 0 ? $application->job->number_of_applications - 1 : 0]);
         $application->delete();
+
         return response()->json(['message' => 'application deleted successfully']);
     }
 }

@@ -10,4 +10,9 @@ class CVApplication extends Model
     use HasFactory;
     protected $table = 'cv_application';
     protected $fillable = ['cv', 'application_id'];
+
+    public function application()
+    {
+        return $this->belongsTo(application::class, 'application_id', 'id');
+    }
 }
