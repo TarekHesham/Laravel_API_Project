@@ -136,7 +136,7 @@ class JobController extends Controller
         // Return success response
         return response()->json([
             'message' => 'Job listing created successfully',
-            'job' => new JobResource($job->load('skills', 'benefits', 'categories'))
+            'job' => new JobResource($job->load('skills', 'benefits', 'categories', 'images')),
         ], 201);
     }
 
@@ -198,6 +198,7 @@ class JobController extends Controller
             'skills' => 'array|exists:skills,id',
             'benefits' => 'array|exists:benefits,id',
             'categories' => 'array|exists:categories,id',
+            'images.*' => 'image|mimes:jpeg,jpg,png,gif|max:5000',
         ], [
             'job_title.string' => 'The job title must be a string.',
             'description.string' => 'The description must be a string.',
@@ -231,10 +232,9 @@ class JobController extends Controller
             // Update the job listing
             $job->update($validatedData);
 
-            if ($request->has('images')) {
+            if ($request->hasFile('images')) {
                 $new_images = $request->file('images');
                 $stored_images = $job->images()->pluck('image')->toArray();
-            
                 $new_image_paths = [];
             
                 foreach ($new_images as $image) {
@@ -244,14 +244,14 @@ class JobController extends Controller
                     if (!in_array($image_path, $stored_images)) {
                         JobImage::create([
                             'image' => $image_path,
-                            'job_id' => $job->id,
+                            'job_listing_id' => $job->id,
                         ]);
                     }
                 }
             
                 foreach ($stored_images as $stored_image) {
                     if (!in_array($stored_image, $new_image_paths)) {
-                        JobImage::where('image', $stored_image)->where('job_id', $job->id)->delete();
+                        JobImage::where('image', $stored_image)->where('job_listing_id', $job->id)->delete();
                         Storage::disk('job_images')->delete($stored_image);
                     }
                 }
@@ -287,7 +287,7 @@ class JobController extends Controller
         // Return success response
         return response()->json([
             'message' => 'Job listing updated successfully',
-            'job' => $job->load('skills', 'benefits', 'categories')
+            'job' => new JobResource($job->load('skills', 'benefits', 'categories', 'images')),
         ], 200);
     }
 
