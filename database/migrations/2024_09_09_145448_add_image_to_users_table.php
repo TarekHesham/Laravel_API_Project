@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('job_listings', function (Blueprint $table) {
-            // Add a slug column if not exists
-            if (!Schema::hasColumn('job_listings', 'slug')) {
-                $table->string('slug')->unique()->after('job_title');
-            }
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('profile_image')->nullable()->default("images/defaultAvatar.png");
         });
     }
 
@@ -24,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('job_listings', function (Blueprint $table) {
-            $table->dropColumn('slug');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('profile_image');
         });
     }
 };

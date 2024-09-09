@@ -68,6 +68,13 @@ return [
             'visibility' => 'public',
             'url' => env('APP_URL') . '/cvs',
             'throw' => false,
+        ],
+        'profile_images' => [
+            "driver" => "local",
+            'root' => public_path('images/avatars'),
+            'visibility' => 'public',
+            'url' => env('APP_URL') . '/images/avatars',
+            'throw' => false,
         ]
     ],
 
