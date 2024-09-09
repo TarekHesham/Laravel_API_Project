@@ -23,12 +23,26 @@
             color: #bad9fcb3;
         }
         h1 {
-            background-color: #bad9fcb3;
             padding: 15px;
             width: max-content;
             border-radius: 14px;
-            margin: auto;
             margin-top: 1.5rem;
+        }
+        h1::before {
+            content: "";
+            background-image: repeating-linear-gradient(-45deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .1) 2px, transparent 2px, transparent 9px);
+            width: 100%;
+            height: 23px;
+            margin: 0;
+            padding: 0;
+            display: block;
+            position: absolute;
+            top: 3rem;
+            left: 0;
+            opacity: 25%;
+        }
+        color {
+            color: #00b7ff;
         }
         ::-webkit-scrollbar {
             width: 7px;
@@ -47,7 +61,7 @@
     </style>
 </head>
 <body>
-    <h1>API Document</h1>
+    <h1>API <color>D</color>ocument</h1>
     <pre>
     <p class="section">
     <span>Global:</span>
