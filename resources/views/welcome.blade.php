@@ -11,6 +11,7 @@
             color: #ffffff;
             font-family: system-ui;
         }
+
         .section {
             background-color: #232c3d;
             border-radius: .875rem;
@@ -21,34 +22,11 @@
         .section:hover {
             background-color: rgb(41 51 71 / 1);
             cursor: pointer;
+            span {
+                color: #21c8f6;
+            }
         }
-        span {
-            font-size: 1rem;
-            font-weight: bold;
-            color: #bad9fcb3;
-        }
-        h1 {
-            padding: 15px;
-            width: max-content;
-            border-radius: 14px;
-            margin-top: 1.5rem;
-        }
-        h1::before {
-            content: "";
-            background-image: repeating-linear-gradient(-45deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .1) 2px, transparent 2px, transparent 9px);
-            width: 100%;
-            height: 23px;
-            margin: 0;
-            padding: 0;
-            display: block;
-            position: absolute;
-            top: 3rem;
-            left: 0;
-            opacity: 25%;
-        }
-        color {
-            color: #00b7ff;
-        }
+
         .section::after {
             content: "";
             position: absolute;
@@ -68,6 +46,36 @@
             scale: 1;
             opacity: 1;
         }
+
+        span {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #bad9fcb3;
+        }
+        color {
+            color: #00b7ff;
+        }
+
+        h1 {
+            padding: 15px;
+            width: max-content;
+            border-radius: 14px;
+            margin-top: 1.5rem;
+        }
+        h1::before {
+            content: "";
+            background-image: repeating-linear-gradient(-45deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .1) 2px, transparent 2px, transparent 9px);
+            width: 100%;
+            height: 23px;
+            margin: 0;
+            padding: 0;
+            display: block;
+            position: absolute;
+            top: 3rem;
+            left: 0;
+            opacity: 25%;
+        }
+
         ::-webkit-scrollbar {
             width: 7px;
         }
