@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Jobs;
 
 use App\Http\Controllers\Controller;
+use App\Models\Dependency\Categories;
+use App\Models\Dependency\Location;
+use App\Models\Dependency\Skills;
 use App\Models\Jobs\Job;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class SearchController extends Controller
 {
@@ -80,5 +84,51 @@ class SearchController extends Controller
         $jobs = $query->get();
 
         return response()->json($jobs);
+    }
+
+    public function autocomplete(Request $request)
+    {
+        // Validator
+        $validator = Validator::make($request->all(), [
+            'query' => 'required|string',
+            'searchtype' => 'required|string|in:skill,skills,location,locations,category,categories'
+        ]);
+
+        // Validate
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Search
+        $searchType = $request['searchtype'];
+        switch ($searchType) {
+            case 'skill':
+            case 'skills':
+                $query = Skills::query();
+                $query->where('name', 'LIKE', '%' . $request->query('query') . '%');
+                break;
+            case 'location':
+            case 'locations':
+                $query = Location::query();
+                $query->where('name', 'LIKE', '%' . $request->query('query') . '%');
+                break;
+            case 'category':
+            case 'categories':
+                $query = Categories::query();
+                $query->where('name', 'LIKE', '%' . $request->query('query') . '%');
+                break;
+            default:
+                return response()->json([
+                    'message' => 'Invalid search type'
+                ], 422);
+                break;
+        }
+
+        // Get results
+        $results = $query->limit(5)->select('id', 'name')->get();
+        return response()->json($results, 200);
     }
 }

@@ -11,7 +11,7 @@ class JobBenefit extends Model
 {
     use HasFactory;
     protected $table = "job_benefits";
-    public $timestamps = false;
+    protected $timestamps = false;
 
     /**
      * The attributes that are mass assignable.

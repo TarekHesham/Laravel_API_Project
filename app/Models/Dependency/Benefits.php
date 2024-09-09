@@ -10,6 +10,7 @@ class Benefits extends Model
 {
     use HasFactory;
     protected $table = "benefits";
+    public $timestamps = false;
     protected $fillable = ['name'];
     
     public function job()

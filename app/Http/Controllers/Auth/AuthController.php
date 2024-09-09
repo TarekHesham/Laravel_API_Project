@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Users\UserResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 
@@ -22,6 +23,7 @@ class AuthController extends Controller
         $validatedData = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users',
+            'profile_image' => 'image|mimes:jpeg,jpg,png,gif|max:5000',
             'password' => 'required|string|min:8',
             'role' => 'required|string|in:employer,candidate'
         ]);
@@ -38,12 +40,19 @@ class AuthController extends Controller
             return response()->json(['message' => 'User already exists'], 409);
         }
 
+        $image_path = "images/defaultAvatar.png";
+        if ($request->hasFile('profile_image')) {
+            $profileImage = $request->file('profile_image');
+            $image_path = $profileImage->store("", "profile_images");
+        }
+
         // Create a new user instance
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'profile_image' => $image_path
         ]);
 
         // Generate a new token for the user
@@ -118,6 +127,6 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         // Return the authenticated user as JSON
-        return response()->json($request->user());
+        return response()->json(new UserResource($request->user()));
     }
 }
