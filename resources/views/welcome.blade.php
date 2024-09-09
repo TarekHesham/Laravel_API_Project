@@ -98,26 +98,27 @@
     <p class="section">
     <span>Global:</span>
         GET|HEAD        api/search .............................. Jobs\SearchController@search
+        GET|HEAD        api/search/autocomplete ................. Jobs\SearchController@autocomplete
         
         GET|HEAD        api/job/{slug} .......................... jobs.showBySlug › Jobs\JobController@showBySlug
         GET|HEAD        api/jobs ................................ jobs.index › Jobs\JobController@index
-        POST            api/jobs ................................ jobs.store › Jobs\JobController@store
         GET|HEAD        api/jobs/{job} .......................... jobs.show › Jobs\JobController@show
-        PUT|PATCH       api/jobs/{job} .......................... jobs.update › Jobs\JobController@update
         
         GET|HEAD        api/comments ............................ comments.index › Jobs\CommentController@index
         POST            api/comments ............................ comments.store › Jobs\CommentController@store
         DELETE          api/comments/{comment} .................. comments.destroy › Jobs\CommentController@destroy
     </p>
     <p class="section">
-    <span>Candidate:</span>
+        <span>Candidate:</span>
         GET|HEAD        api/application ......................... application.index › ApplicationController@index
         POST            api/application ......................... application.store › ApplicationController@store
         GET|HEAD        api/application/{application} ........... application.show › ApplicationController@show
         DELETE          api/application/{application} ........... application.destroy › ApplicationController@destroy
     </p>
     <p class="section">
-    <span>Employer:</span>
+        <span>Employer:</span>
+        POST            api/jobs ................................ jobs.store › Jobs\JobController@store
+        PUT|PATCH       api/jobs/{job} .......................... jobs.update › Jobs\JobController@update
         GET|HEAD        api/employer/jobs ....................... EmployerJobController@index
         POST            api/employer/{job}/cancel ............... EmployerJobController@cancelJob
     </p>
