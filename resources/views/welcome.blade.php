@@ -18,6 +18,10 @@
             margin-block: 0;
             position: relative;
         }
+        .section:hover {
+            background-color: rgb(41 51 71 / 1);
+            cursor: pointer;
+        }
         span {
             font-size: 1rem;
             font-weight: bold;
