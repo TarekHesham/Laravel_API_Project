@@ -29,4 +29,10 @@ class Application extends Model
     {
         return $this->belongsTo(CVApplication::class, 'id', 'application_id');
     }
+
+    // Relation with form
+    public function form(): BelongsTo
+    {
+        return $this->belongsTo(FormApplication::class, 'id', 'application_id');
+    }
 }
