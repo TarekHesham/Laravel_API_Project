@@ -21,7 +21,7 @@ class ApplicationPolicy
      */
     public function view(User $user, Application $application): bool
     {
-        return $user->isAdmin() || $user->id == $application->user->id;
+        return $user->isAdmin() || $user->id == $application->candidate->id;
     }
 
     /**

@@ -6,8 +6,8 @@ use App\Models\Users\Application;
 use App\Http\Resources\ApplicationResource;
 use App\Models\Users\CVApplication;
 use App\Models\Users\FormApplication;
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -22,7 +22,7 @@ class ApplicationController extends Controller
         if ($request->user()->cannot('viewAny', Application::class)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-        return ApplicationResource::collection(Application::all())->resolve();
+        return response()->json(ApplicationResource::collection(Application::all()));
     }
 
     /**
@@ -85,7 +85,7 @@ class ApplicationController extends Controller
             $application->job->update(['number_of_applications' => $application->job->number_of_applications + 1]);
 
             DB::commit();
-        } catch (Expception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -95,23 +95,24 @@ class ApplicationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Application $application)
+    public function show(Application $application, Request $request)
     {
-        if (!Auth::user()->can('view', $application)) {
+        if (!$request->user()->can('view', $application)) {
             // Return a 403 error if the user doesn't have permission
             return response()->json([
                 'error' => 'You do not have permission to view this application'
             ], 403);
         }
-        return new ApplicationResource($application);
+
+        return response()->json(new ApplicationResource($application), 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Application $application)
+    public function destroy(Application $application, Request $request)
     {
-        if (!Auth::user()->can('delete', $application)) {
+        if (!$request->user()->can('delete', $application)) {
             // Return a 403 error if the user doesn't have permission
             return response()->json([
                 'error' => 'You do not have permission to view this application'

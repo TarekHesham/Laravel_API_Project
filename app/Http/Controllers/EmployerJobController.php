@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\Users\EmployerJobResource;
 use App\Models\Jobs\Job;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class EmployerJobController extends Controller
 {
@@ -31,7 +33,7 @@ class EmployerJobController extends Controller
         }
 
         // Return the jobs of the current employer
-        return EmployerJobResource::collection(Auth::user()->jobs)->resolve();
+        return response()->json(EmployerJobResource::collection(Auth::user()->jobs), 200);
     }
 
     /**
@@ -40,20 +42,18 @@ class EmployerJobController extends Controller
      * @param int $jobId The id of the job to cancel
      * @return \Illuminate\Http\JsonResponse
      */
-    public function cancelJob($jobId)
+    public function cancelJob($jobId, Request $request)
     {
         // Check if the user can cancel the job
-        if (!Auth::user()->can('cancel', Job::class)) {
+        if (!$request->user()->can('cancel', Job::class)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-        // Get the current employer
-        $employer = Auth::user();
 
         // Get the job
-        $job = $employer->jobs()->where('job_listing_id', $jobId)->firstOrFail();
+        $job = $request->user()->jobs()->where('job_listing_id', $jobId)->firstOrFail();
 
         // Check if the current employer is the owner of the job
-        if ($job->employer_id !== $employer->id) {
+        if ($job->employer_id !== $request->user()->id) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 

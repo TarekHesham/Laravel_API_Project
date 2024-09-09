@@ -27,7 +27,7 @@ class JobController extends Controller
     // public function index()
     // {
     //     if (auth()->user()->isAdmin()) {
-    //         return JobResource::collection(Job::all())->resolve();
+    //         return response()->json(JobResource::collection(Job::all()), 200);
     //     }
 
     //     $jobs = Job::where('status', 'open')->get();
@@ -36,14 +36,14 @@ class JobController extends Controller
     //             'message' => 'No open jobs found'
     //         ], 404);
     //     }
-    //     return JobResource::collection($jobs)->resolve();
+    //     return response()->json(JobResource::collection($jobs), 200);;
     // }
 
-    public function index()
+    public function index(Request $request)
     {
         $jobs = [];
 
-        if (auth()->user()->isAdmin()) {
+        if ($request->user()->isAdmin()) {
             $jobs = Job::select('job_title', 'description', 'number_of_applications', 'status', 'work_type', 'experience_level', 'location_id', 'employer_id')
                 ->with([
                     'location:id,name',
@@ -51,12 +51,12 @@ class JobController extends Controller
                 ])
                 ->get();
             return response()->json($jobs);
-        } else if (auth()->user()->isEmployer()) {
+        } else if ($request->user()->isEmployer()) {
             $jobs = Job::select('job_title', 'description', 'number_of_applications', 'location_id', 'work_type', 'experience_level')
-                ->where('status', 'open')->orWhere('employer_id', auth()->user()->id)
+                ->where('status', 'open')->orWhere('employer_id', $request->user()->id)
                 ->with('location:id,name')
                 ->get();
-        } else if (auth()->user()->isCandidate()) {
+        } else if ($request->user()->isCandidate()) {
             $jobs = Job::select('job_title', 'description', 'number_of_applications', 'location_id', 'work_type', 'experience_level')
                 ->where('status', 'open')
                 ->with('location:id,name')
@@ -185,7 +185,7 @@ class JobController extends Controller
     public function show(Request $request, Job $job): JsonResponse
     {
         // Check if the authenticated user has permission to view the job
-        if (!auth()->user()->can('view', $job)) {
+        if (!$request->user()->can('view', $job)) {
             // Return a 403 error if the user doesn't have permission
             return response()->json([
                 'error' => 'You do not have permission to view this job'
@@ -385,7 +385,7 @@ class JobController extends Controller
 
     public function acceptReject(Request $request, Job $job): JsonResponse
     {
-        if (!auth()->user()->can('acceptReject', $job)) {
+        if (!$request->user()->can('acceptReject', $job)) {
             // Return a 403 error if the user doesn't have permission
             return response()->json([
                 'error' => 'You do not have permission to accept or reject this job'
