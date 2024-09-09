@@ -11,7 +11,9 @@ This project was generated with [Laravel](https://laravel.com/docs) version 11.
 ## API Document
 
 <div align="center">
+
 ![document](./Resources/document.png)
+
 </div>
 
 ## Development server
