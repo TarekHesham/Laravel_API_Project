@@ -108,17 +108,17 @@ class SearchController extends Controller
             case 'skill':
             case 'skills':
                 $query = Skills::query();
-                $query->where('name', 'LIKE', '%' . $request->query('query') . '%');
+                $query->where('name', 'LIKE', $request->query('query') . '%');
                 break;
             case 'location':
             case 'locations':
                 $query = Location::query();
-                $query->where('name', 'LIKE', '%' . $request->query('query') . '%');
+                $query->where('name', 'LIKE', $request->query('query') . '%');
                 break;
             case 'category':
             case 'categories':
                 $query = Categories::query();
-                $query->where('name', 'LIKE', '%' . $request->query('query') . '%');
+                $query->where('name', 'LIKE', $request->query('query') . '%');
                 break;
             default:
                 return response()->json([
