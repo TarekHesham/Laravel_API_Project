@@ -20,6 +20,7 @@ class EmployerApplicationResource extends JsonResource
             'title' => $this->status,
             'candidate' => new UserResource($this->candidate),
             'cv' => $this->type == 'cv' ? asset("cvs/{$this->cv->cv}") : null,
+            'form' => $this->type == 'form' ? new ApplicationFormResource($this->form) : null
         ];
     }
 }
