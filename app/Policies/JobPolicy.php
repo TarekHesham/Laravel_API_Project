@@ -45,7 +45,7 @@ class JobPolicy
      */
     public function delete(User $user, Job $job): bool
     {
-        return $user->isAdmin() || $user->isEmployer() && $user->id === $job->employer_id;
+        return $user->isAdmin();
     }
 
     /**

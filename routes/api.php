@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\EmployerJobController;
 use App\Http\Controllers\Jobs\JobController;
 use App\Http\Controllers\Jobs\CommentController;
+use App\Http\Controllers\Jobs\SearchController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -17,6 +18,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Jobs
     Route::apiResource('/jobs', JobController::class);
+    Route::get('/job/{slug}', [JobController::class, 'showBySlug'])->where('slug', '[a-z0-9-]+');
+    Route::get('/search', [SearchController::class, 'search']);
 
     // comments
     Route::apiResource('/comments', CommentController::class);
