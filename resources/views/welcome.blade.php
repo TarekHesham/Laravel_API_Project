@@ -106,7 +106,6 @@
         
         GET|HEAD        api/comments ............................ comments.index › Jobs\CommentController@index
         POST            api/comments ............................ comments.store › Jobs\CommentController@store
-        DELETE          api/comments/{comment} .................. comments.destroy › Jobs\CommentController@destroy
     </p>
     <p class="section">
         <span>Candidate:</span>
@@ -123,9 +122,10 @@
         POST            api/employer/{job}/cancel ............... EmployerJobController@cancelJob
     </p>
     <p class="section">
-    <span>Admin:</span>
+        <span>Admin:</span>
         DELETE          api/jobs/{job} .......................... jobs.destroy › Jobs\JobController@destroy
         PUT             api/jobs/{job}/status ................... Jobs\JobController@acceptReject
+        DELETE          api/comments/{comment} .................. comments.destroy › Jobs\CommentController@destroy
     </p>
     <p class="section">
     <span>Auth:</span>
