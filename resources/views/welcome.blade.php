@@ -16,6 +16,7 @@
             border-radius: .875rem;
             margin-inline: 2rem;
             margin-block: 0;
+            position: relative;
         }
         span {
             font-size: 1rem;
@@ -43,6 +44,25 @@
         }
         color {
             color: #00b7ff;
+        }
+        .section::after {
+            content: "";
+            position: absolute;
+            right: -20px;
+            top: -25px;
+            width: 4rem;
+            height: 4rem;
+            background-image: url(https://ik.imagekit.io/laracasts/series/thumbnails/png//automatic-laravel-upgrades-explained.png?tr=w-890);
+            background-repeat: no-repeat;
+            background-size: contain;
+            transition: all 0.7s 0s ease;
+            scale: 0.9;
+            opacity: 0;
+        }
+        .section:hover::after {
+            rotate: 360deg;
+            scale: 1;
+            opacity: 1;
         }
         ::-webkit-scrollbar {
             width: 7px;
