@@ -8,6 +8,7 @@ use App\Models\Dependency\Location;
 use App\Models\Dependency\Skills;
 use App\Models\Users\Comment;
 use App\Models\User;
+use App\Models\Users\Application;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -77,6 +78,11 @@ class Job extends Model
     public function categories()
     {
         return $this->belongsToMany(Categories::class, 'job_category', 'job_listing_id', 'category_id');
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'job_id');
     }
 
     protected static function boot()
