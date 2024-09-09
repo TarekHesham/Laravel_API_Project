@@ -14,10 +14,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 class Job extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasSlug;
+
     protected $table = 'job_listings';
 
     /**
@@ -37,7 +40,8 @@ class Job extends Model
         'location_id',
         'employer_id',
         'status',
-        'number_of_applications'
+        'number_of_applications',
+        'slug',
     ];
 
     function employer(): BelongsTo
@@ -80,12 +84,13 @@ class Job extends Model
         parent::boot();
     }
 
-    public function sluggable(): array
+    /**
+     * Get the options for generating the slug.
+     */
+    public function getSlugOptions() : SlugOptions
     {
-        return [
-            'slug' => [
-                'source' => 'job_title'
-            ]
-        ];
+        return SlugOptions::create()
+            ->generateSlugsFrom('job_title')
+            ->saveSlugsTo('slug');
     }
 }

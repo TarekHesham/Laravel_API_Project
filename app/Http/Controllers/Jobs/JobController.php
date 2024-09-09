@@ -24,20 +24,54 @@ class JobController extends Controller
      *
      * @return \Illuminate\Database\Eloquent\Collection|Job[]
      */
+    // public function index()
+    // {
+    //     if (auth()->user()->isAdmin()) {
+    //         return JobResource::collection(Job::all())->resolve();
+    //     }
+
+    //     $jobs = Job::where('status', 'open')->get();
+    //     if ($jobs->isEmpty()) {
+    //         return response()->json([
+    //             'message' => 'No open jobs found'
+    //         ], 404);
+    //     }
+    //     return JobResource::collection($jobs)->resolve();
+    // }
+
     public function index()
     {
+        $jobs = [];
+
         if (auth()->user()->isAdmin()) {
-            return JobResource::collection(Job::all())->resolve();
+            $jobs = Job::select('job_title', 'description', 'number_of_applications', 'status', 'work_type', 'experience_level', 'location_id', 'employer_id')
+                ->with([
+                    'location:id,name',
+                    'employer:id,name'
+                ])
+                ->get();
+            return response()->json($jobs);
+        } else if (auth()->user()->isEmployer()) {
+            $jobs = Job::select('job_title', 'description', 'number_of_applications', 'location_id', 'work_type', 'experience_level')
+                ->where('status', 'open')->orWhere('employer_id', auth()->user()->id)
+                ->with('location:id,name')
+                ->get();
+        } else if (auth()->user()->isCandidate()) {
+            $jobs = Job::select('job_title', 'description', 'number_of_applications', 'location_id', 'work_type', 'experience_level')
+                ->where('status', 'open')
+                ->with('location:id,name')
+                ->get();
         }
 
-        $jobs = Job::where('status', 'open')->get();
         if ($jobs->isEmpty()) {
             return response()->json([
                 'message' => 'No open jobs found'
             ], 404);
         }
-        return JobResource::collection($jobs)->resolve();
+
+        return response()->json($jobs);
     }
+
 
     /**
      * Store a newly created job posting in storage.
@@ -80,7 +114,7 @@ class JobController extends Controller
 
         // Add the user as the employer
         $validatedData['employer_id'] = $request->user()->id;
-        
+
         DB::beginTransaction();
 
         try {
@@ -95,7 +129,7 @@ class JobController extends Controller
 
             if ($request->hasFile('images')) {
                 $images = $request->file('images');
-                
+
                 foreach ($images as $image) {
                     // Get the image path
                     $image_path = $image->store("", 'job_images');
@@ -237,11 +271,11 @@ class JobController extends Controller
                 $new_images = $request->file('images');
                 $stored_images = $job->images()->pluck('image')->toArray();
                 $new_image_paths = [];
-            
+
                 foreach ($new_images as $image) {
                     $image_path = $image->store("", 'job_images');
                     $new_image_paths[] = $image_path;
-            
+
                     if (!in_array($image_path, $stored_images)) {
                         JobImage::create([
                             'image' => $image_path,
@@ -249,7 +283,7 @@ class JobController extends Controller
                         ]);
                     }
                 }
-            
+
                 foreach ($stored_images as $stored_image) {
                     if (!in_array($stored_image, $new_image_paths)) {
                         JobImage::where('image', $stored_image)->where('job_listing_id', $job->id)->delete();
@@ -275,7 +309,7 @@ class JobController extends Controller
                 $categoryIds = $this->handleEntities($validatedData['categories'], Categories::class, 'job_category', $job->id);
                 $job->categories()->sync($categoryIds);
             }
-        }  catch (Exception $errors) {
+        } catch (Exception $errors) {
             DB::rollBack();
             return response()->json([
                 'message' => $errors->getMessage()
@@ -326,7 +360,7 @@ class JobController extends Controller
 
             // Delete the job listing
             $job->delete();
-        }  catch (Exception $errors) {
+        } catch (Exception $errors) {
             DB::rollBack();
             return response()->json([
                 'message' => $errors->getMessage()
@@ -335,11 +369,18 @@ class JobController extends Controller
 
         // Commit the transaction
         DB::commit();
-        
+
         // Return success response
         return response()->json([
             'message' => 'Job listing deleted successfully'
         ], 200);
+    }
+
+    public function showBySlug($slug)
+    {
+        $job = Job::where('slug', $slug)->firstOrFail();
+
+        return response()->json(new JobResource($job->load('skills', 'benefits', 'categories', 'images')), 200);
     }
 
     public function acceptReject(Request $request, Job $job): JsonResponse
@@ -370,7 +411,7 @@ class JobController extends Controller
             $job->update([
                 'status' => $request->status == 'accepted' ? 'open' : 'closed'
             ]);
-    
+
             // Update the status in 'employer_jobs' table
             EmployerJob::where('job_listing_id', $job->id)
                 ->update([
@@ -385,7 +426,6 @@ class JobController extends Controller
                 'message' => "Job {$request->status} successfully.",
                 'data' => new JobResource($job)
             ], 200);
-
         } catch (Exception $e) {
             // Rollback the transaction if something goes wrong
             DB::rollBack();
