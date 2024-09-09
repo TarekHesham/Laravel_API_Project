@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Jobs
     Route::apiResource('/jobs', JobController::class);
     Route::get('/job/{slug}', [JobController::class, 'showBySlug'])->where('slug', '[a-z0-9-]+');
+    Route::get('/search/autocomplete', [SearchController::class, 'autocomplete']);
     Route::get('/search', [SearchController::class, 'search']);
 
     // comments
