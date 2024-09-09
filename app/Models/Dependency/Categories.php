@@ -10,6 +10,7 @@ class Categories extends Model
 {
     use HasFactory;
     protected $table = "categories";
+    protected $timestamps = false;
     protected $fillable = ['name'];
     
     public function jobListings()

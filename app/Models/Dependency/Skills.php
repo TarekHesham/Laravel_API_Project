@@ -10,6 +10,7 @@ class Skills extends Model
 {
     use HasFactory;
     protected $table = "skills";
+    protected $timestamps = false;
     protected $fillable = ['name'];
     
     public function jobListings()
