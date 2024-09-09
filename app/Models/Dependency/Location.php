@@ -10,7 +10,7 @@ class Location extends Model
 {
     use HasFactory;
     protected $table = "locations";
-    protected $timestamps = false;
+    public $timestamps = false;
     protected $fillable = ['name'];
     
     public function job()
