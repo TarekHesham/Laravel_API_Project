@@ -131,4 +131,8 @@ class SearchController extends Controller
         $results = $query->limit(5)->select('id', 'name')->get();
         return response()->json($results, 200);
     }
+
+    public function locations() {
+        return response()->json(Location::all());
+    }
 }
