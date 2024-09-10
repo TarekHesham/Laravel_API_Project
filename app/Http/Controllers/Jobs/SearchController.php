@@ -103,7 +103,7 @@ class SearchController extends Controller
         }
 
         // Search
-        $searchType = $request['searchtype'];
+        $searchType = $request->query('searchtype');
         switch ($searchType) {
             case 'skill':
             case 'skills':
