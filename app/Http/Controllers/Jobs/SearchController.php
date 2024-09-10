@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Jobs;
 
 use App\Http\Controllers\Controller;
+use App\Models\Dependency\Benefits;
 use App\Models\Dependency\Categories;
 use App\Models\Dependency\Location;
 use App\Models\Dependency\Skills;
@@ -91,7 +92,7 @@ class SearchController extends Controller
         // Validator
         $validator = Validator::make($request->all(), [
             'query' => 'required|string',
-            'searchtype' => 'required|string|in:skill,skills,location,locations,category,categories'
+            'searchtype' => 'required|string|in:skill,skills,location,locations,category,categories,benefit,benefits'
         ]);
 
         // Validate
@@ -122,6 +123,11 @@ class SearchController extends Controller
             case 'category':
             case 'categories':
                 $query = Categories::query();
+                if ($keyword !== 'all') $query->where('name', 'LIKE', $keyword . '%')->limit(5);
+                break;
+            case 'benefit':
+            case 'benefits':
+                $query = Benefits::query();
                 if ($keyword !== 'all') $query->where('name', 'LIKE', $keyword . '%')->limit(5);
                 break;
             default:
