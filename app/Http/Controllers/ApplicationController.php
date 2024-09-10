@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Users\Application;
 use App\Http\Resources\ApplicationResource;
+use App\Http\Resources\SubmittedJobResource;
 use App\Models\Users\CVApplication;
 use App\Models\Users\FormApplication;
 use Exception;
@@ -19,10 +20,26 @@ class ApplicationController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user()->cannot('viewAny', Application::class)) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+        // Get data from the database with role
+        $applications = [];
+        switch ($request->user()->role) {
+            case 'admin':
+                $applications_data = Application::all();
+                $applications = ApplicationResource::collection($applications_data);
+                break;
+            case 'candidate':
+                $applications_data = Application::where('candidate_id', $request->user()->id)->get();
+                $applications = SubmittedJobResource::collection($applications_data);
+                break;
         }
-        return response()->json(ApplicationResource::collection(Application::all()));
+
+        // handel if no applicatons found
+        if (count($applications) == 0) {
+            return response()->json(["message"=> "No applications found"], 404);
+        }
+
+        // Return the data
+        return response()->json($applications, 200);
     }
 
     /**
