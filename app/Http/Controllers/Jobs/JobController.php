@@ -44,7 +44,7 @@ class JobController extends Controller
         $jobs = [];
 
         if ($request->user()->isAdmin()) {
-            $jobs = Job::select('job_title', 'description', 'number_of_applications', 'status', 'work_type', 'experience_level', 'location_id', 'employer_id')
+            $jobs = Job::select('id', 'job_title', 'description', 'number_of_applications', 'status', 'work_type', 'experience_level', 'location_id', 'employer_id')
                 ->with([
                     'location:id,name',
                     'employer:id,name'
@@ -52,12 +52,12 @@ class JobController extends Controller
                 ->get();
             return response()->json($jobs);
         } else if ($request->user()->isEmployer()) {
-            $jobs = Job::select('job_title', 'description', 'number_of_applications', 'location_id', 'work_type', 'experience_level')
+            $jobs = Job::select('id', 'job_title', 'description', 'number_of_applications', 'location_id', 'work_type', 'experience_level')
                 ->where('status', 'open')->orWhere('employer_id', $request->user()->id)
                 ->with('location:id,name')
                 ->get();
         } else if ($request->user()->isCandidate()) {
-            $jobs = Job::select('job_title', 'description', 'number_of_applications', 'location_id', 'work_type', 'experience_level')
+            $jobs = Job::select('id', 'job_title', 'description', 'number_of_applications', 'location_id', 'work_type', 'experience_level')
                 ->where('status', 'open')
                 ->with('location:id,name')
                 ->get();
