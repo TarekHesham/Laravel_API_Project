@@ -24,21 +24,6 @@ class JobController extends Controller
      *
      * @return \Illuminate\Database\Eloquent\Collection|Job[]
      */
-    // public function index()
-    // {
-    //     if (auth()->user()->isAdmin()) {
-    //         return response()->json(JobResource::collection(Job::all()), 200);
-    //     }
-
-    //     $jobs = Job::where('status', 'open')->get();
-    //     if ($jobs->isEmpty()) {
-    //         return response()->json([
-    //             'message' => 'No open jobs found'
-    //         ], 404);
-    //     }
-    //     return response()->json(JobResource::collection($jobs), 200);;
-    // }
-
     public function index(Request $request)
     {
         $jobs = [];
