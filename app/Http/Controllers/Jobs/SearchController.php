@@ -8,6 +8,7 @@ use App\Models\Dependency\Categories;
 use App\Models\Dependency\Location;
 use App\Models\Dependency\Skills;
 use App\Models\Jobs\Job;
+use App\Http\Resources\Jobs\JobResource;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -64,25 +65,10 @@ class SearchController extends Controller
         }
 
         if ($request->filled('created_at')) {
-            $timeFrame = $request->query('created_at');
-
-            switch ($timeFrame) {
-                case 'day':
-                    $query->where('created_at', '>=', Carbon::now()->subDay());
-                    break;
-                case 'week':
-                    $query->where('created_at', '>=', Carbon::now()->subWeek());
-                    break;
-                case 'month':
-                    $query->where('created_at', '>=', Carbon::now()->subMonth());
-                    break;
-                case 'year':
-                    $query->where('created_at', '>=', Carbon::now()->subYear());
-                    break;
-            }
+			$query->where('created_at', '<=', Carbon::now());
         }
 
-        $jobs = $query->get();
+        $jobs = JobResource::collection($query->get());
 
         return response()->json($jobs);
     }
