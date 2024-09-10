@@ -104,21 +104,36 @@ class SearchController extends Controller
 
         // Search
         $searchType = $request->query('searchtype');
+        $query = $request->query('query');
+        $results = null;
+
         switch ($searchType) {
             case 'skill':
             case 'skills':
+                if ($query == 'all') {
+                    $results = Skills::all();
+                    break;
+                }
                 $query = Skills::query();
-                $query->where('name', 'LIKE', $request->query('query') . '%');
+                $query->where('name', 'LIKE', $query . '%');
                 break;
             case 'location':
             case 'locations':
+                if ($query == 'all') {
+                    $results = Location::all();
+                    break;
+                }
                 $query = Location::query();
-                $query->where('name', 'LIKE', $request->query('query') . '%');
+                $query->where('name', 'LIKE', $query . '%');
                 break;
             case 'category':
             case 'categories':
+                if ($query == 'all') {
+                    $results = Categories::all();
+                    break;
+                }
                 $query = Categories::query();
-                $query->where('name', 'LIKE', $request->query('query') . '%');
+                $query->where('name', 'LIKE', $query . '%');
                 break;
             default:
                 return response()->json([
@@ -128,7 +143,10 @@ class SearchController extends Controller
         }
 
         // Get results
-        $results = $query->limit(5)->select('id', 'name')->get();
+        if ($query !== 'all') {
+            $results = $query->limit(5)->select('id', 'name')->get();
+        };
+
         return response()->json($results, 200);
     }
 
