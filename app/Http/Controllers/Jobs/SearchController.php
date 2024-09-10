@@ -145,4 +145,16 @@ class SearchController extends Controller
     public function locations() {
         return response()->json(Location::all());
     }
+
+    public function skills() {
+        return response()->json(Skills::all());
+    }
+
+    public function benefits() {
+        return response()->json(Benefits::all());
+    }
+
+    public function categories() {
+        return response()->json(Categories::all());
+    }
 }

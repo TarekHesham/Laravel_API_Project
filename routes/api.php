@@ -29,8 +29,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/employer/{job}/cancel', [EmployerJobController::class, 'cancelJob']);
     Route::get('/employer/jobs', [EmployerJobController::class, 'index']);
 
-    // Locations
+    // Deprecated
     Route::get('/locations', [SearchController::class, 'locations']);
+    Route::get('/categories', [SearchController::class, 'categories']);
+    Route::get('/skills', [SearchController::class, 'skills']);
+    Route::get('/benefits', [SearchController::class, 'benefits']);
+
+
 
     // Admin
     Route::put('/jobs/{job}/status', [JobController::class, 'acceptReject']);
