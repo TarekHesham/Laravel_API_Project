@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Jobs
     Route::post('/jobs/{job}', [JobController::class, 'update']);
     Route::apiResource('/jobs', JobController::class);
+    Route::get('/job/{slug}/applications', [EmployerJobController::class, 'applicationsOnJob'])->where('slug', '[a-z0-9-]+');
     Route::get('/job/{slug}', [JobController::class, 'showBySlug'])->where('slug', '[a-z0-9-]+');
     Route::get('/search/autocomplete', [SearchController::class, 'autocomplete']);
     Route::get('/search', [SearchController::class, 'search']);
@@ -40,7 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Admin
     Route::put('/jobs/{job}/status', [JobController::class, 'acceptReject']);
-
+    
     // application
     Route::apiResource('/application', ApplicationController::class)->except('update');
 });
