@@ -8,6 +8,7 @@
 
 This project was generated with [Laravel](https://laravel.com/docs) version 11.
 
+- **[MindMap - ERD for DB - Mapping Tables](./Resources)**
 - **[FrontEnd](https://github.com/TarekHesham/Laravel_Project)**
 
 ## API Document
