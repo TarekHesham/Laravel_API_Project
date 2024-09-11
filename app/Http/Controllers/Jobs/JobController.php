@@ -204,16 +204,15 @@ class JobController extends Controller
         }
 
         $validatedData = $request->all();
-
         // Create a validator instance
         $validator = Validator::make($validatedData, [
             'job_title' => 'string',
             'description' => 'string',
             'deadline' => 'date',
-            'experience_level' => 'string|in:entry_level,intermediate,expert',
+            'experience_level' => 'string',
             'salary_from' => 'integer',
             'salary_to' => 'integer|gt:salary_from',
-            'work_type' => 'string|in:remote,onsite,hybrid',
+            'work_type' => 'string',
             'location_id' => 'integer',
             'skills' => 'array|exists:skills,id',
             'benefits' => 'array|exists:benefits,id',
@@ -241,7 +240,8 @@ class JobController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
+                'data' => $validatedData
             ], 422);
         };
 
@@ -294,6 +294,7 @@ class JobController extends Controller
                 $categoryIds = $this->handleEntities($validatedData['categories'], Categories::class, 'job_category', $job->id);
                 $job->categories()->sync($categoryIds);
             }
+            DB::commit();
         } catch (Exception $errors) {
             DB::rollBack();
             return response()->json([
