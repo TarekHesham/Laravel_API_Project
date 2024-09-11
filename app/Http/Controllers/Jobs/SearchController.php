@@ -25,7 +25,7 @@ class SearchController extends Controller
                 $query->where('status', 'open');
                 break;
             case 'employer':
-                $query->where('status', 'open')->orWhere('employer_id', $request->user()->id);
+                $query->where('status', 'open');
                 break;
         }
 
