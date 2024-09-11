@@ -63,4 +63,9 @@ class ApplicationPolicy
     {
         return $user->isAdmin();
     }
+
+    public function accept(User $user, Application $application): bool
+    {
+        return $user->isEmployer() && $user->email === $application->job->employer->email;
+    }
 }

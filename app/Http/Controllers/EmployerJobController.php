@@ -6,8 +6,10 @@ use App\Http\Resources\ApplicationResource;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\Users\EmployerJobResource;
 use App\Models\Jobs\Job;
+use App\Models\Users\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Nette\Schema\Expect;
 
 class EmployerJobController extends Controller
 {
@@ -43,6 +45,57 @@ class EmployerJobController extends Controller
         $job = $request->user()->jobs()->where('slug', $slug)->firstOrFail();
         return response()->json(["applications" => ApplicationResource::collection($job->applications)], 200);
     }
+    
+    public function acceptApplication(Application $application, Request $request) {
+        // Check employer can accept application
+        if (!$request->user()->can('accept', $application)) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        // Check if the application has already been accepted
+        if ($application->status === 'accepted') {
+            return response()->json(['message' => 'Application has already been accepted'], 400);
+        }
+
+        // Start a new database transaction
+        DB::beginTransaction();
+        try {
+            // Update the status of the application
+            $application->update(['status' => 'accepted']);
+            DB::commit();
+            return response()->json(['message' => 'Application accepted'], 200);
+        } catch (Expect $e) {
+            // Rollback the database transaction
+            DB::rollBack();
+            return response()->json(['message' => 'Something went wrong'], 500);
+        }
+    }
+
+    public function rejectApplication(Application $application, Request $request) {
+        // Check employer can accept application
+        if (!$request->user()->can('accept', $application)) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        // Check if the application has already been rejected
+        if ($application->status === 'rejected') {
+            return response()->json(['message' => 'Application has already been rejected'], 400);
+        }
+
+        // Start a new database transaction
+        DB::beginTransaction();
+        try {
+            // Update the status of the application
+            $application->update(['status' => 'rejected']);
+            DB::commit();
+            return response()->json(['message' => 'Application rejected'], 200);
+        } catch (Expect $e) {
+            // Rollback the database transaction
+            DB::rollBack();
+            return response()->json(['message' => 'Something went wrong'], 500);
+        }
+    }
+
     /**
      * Cancel a job of the current employer
      *

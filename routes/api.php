@@ -7,6 +7,7 @@ use App\Http\Controllers\EmployerJobController;
 use App\Http\Controllers\Jobs\JobController;
 use App\Http\Controllers\Jobs\CommentController;
 use App\Http\Controllers\Jobs\SearchController;
+use App\Models\Users\EmployerJob;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -43,6 +44,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/jobs/{job}/status', [JobController::class, 'acceptReject']);
     
     // application
+    Route::put('/application/{application}/accept', [EmployerJobController::class, 'acceptApplication']);
+    Route::put('/application/{application}/reject', [EmployerJobController::class, 'rejectApplication']);
     Route::apiResource('/application', ApplicationController::class)->except('update');
 });
 

@@ -22,7 +22,8 @@ class ApplicationResource extends JsonResource
             'candidate' => new UserResource($this->candidate),
             'job' => new JobResource($this->job),
             'cv' => $this->type == 'cv' ? asset("cvs/{$this->cv->cv}") : null,
-            'form' => $this->type == 'form' ? new ApplicationFormResource($this->form) : null
+            'form' => $this->type == 'form' ? new ApplicationFormResource($this->form) : null,
+            'applyed_at' => $this->created_at
         ];
     }
 }
