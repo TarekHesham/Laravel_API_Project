@@ -28,7 +28,7 @@ Run `php artisan serve` for a dev server. Navigate to `http://127.0.0.1:8000/`. 
 ```bash
 composer install # Composer will install all dependency resources
 
-php artisan migrate # Laravel will generate all tables
+php artisan migrate:fresh --seed # Laravel will generate all tables and add data for locations, benefits, skills, categories
 php artisan serve # Run service on port 8000
 ```
 - **Don't Forget to add your DB informations in `.env`**
